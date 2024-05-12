@@ -11,3 +11,4 @@ node_modules
 temp
 regex-doctor.json
 .nuxt
+fixtures/*.d.ts

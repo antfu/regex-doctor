@@ -8,11 +8,7 @@ const number = ref(0)
 
 watchEffect(() => {
   const ms = props.ms
-  if (ms < 0.01) {
-    unit.value = 'ns'
-    number.value = ms * 1e6
-  }
-  else if (ms < 10) {
+  if (ms < 0.1) {
     unit.value = 'μs'
     number.value = ms * 1e3
   }
@@ -33,10 +29,22 @@ watchEffect(() => {
     number.value = ms / 1000 / 60 / 60
   }
 })
+
+const color = computed(() => {
+  if (props.ms > 0.5)
+    return 'text-red'
+  if (props.ms > 0.2)
+    return 'text-orange'
+  if (props.ms > 0.1)
+    return 'text-yellow'
+  if (props.ms < 0.0001)
+    return 'op50'
+  return ''
+})
 </script>
 
 <template>
-  <code>
+  <code :class="color">
     {{ number.toFixed(2) }}<span op50 text-sm>{{ unit }}</span>
   </code>
 </template>

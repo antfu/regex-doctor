@@ -1,6 +1,6 @@
 /* eslint-disable no-extend-native */
 import { parse } from 'error-stack-parser-es'
-import type { RegExpInfo, RegexDoctorOptions, SerializedRegExpCall, SerializedRegExpInfo } from './types'
+import type { Durations, RegExpInfo, RegexDoctorDumpOptions, RegexDoctorOptions, SerializedRegExpInfo, SerializedRegexDoctorResult } from './types'
 
 export * from './types'
 
@@ -42,10 +42,12 @@ export class RegexDoctor {
         const duration = end - start
 
         info.calls.push({
-          // eslint-disable-next-line unicorn/error-message
-          traceObj: new Error(),
+          traceObj: duration > 0.001
+            // eslint-disable-next-line unicorn/error-message
+            ? new Error()
+            : undefined,
           duration,
-          string,
+          // string,
           stringLength: string.length,
         })
 
@@ -102,31 +104,95 @@ export class RegexDoctor {
     this.map.clear()
   }
 
-  dump(): SerializedRegExpInfo[] {
-    return Array.from(this.map.values())
-      .map((info): SerializedRegExpInfo => {
+  dump(options: RegexDoctorDumpOptions = {}): SerializedRegexDoctorResult {
+    const {
+      limitRegexes = 50,
+      limitCalls = 5,
+      stacktrace = false,
+    } = options
+
+    const unique = new Set<string>()
+    let totalDuration = 0
+    let items = Array.from(this.map.values())
+    items.forEach((info) => {
+      info.durations = getDurations(info)
+      totalDuration += info.durations.sum
+      unique.add(info.regex.source)
+    })
+    items.sort((a, b) => b.durations!.sum - a.durations!.sum)
+
+    if (limitRegexes > 0)
+      items = items.slice(0, limitRegexes)
+
+    function dumpInfo(info: RegExpInfo): SerializedRegExpInfo {
+      const calls = info.calls
+        .sort((a, b) => b.duration - a.duration)
+
+      if (limitCalls > 0)
+        calls.splice(limitCalls)
+
+      const files = new Set<string>()
+
+      const infos = calls.map((call) => {
+        const trace = stacktrace && call.traceObj
+          ? parse(call.traceObj)
+            .slice(1)
+            .filter(frame => frame.fileName && !frame.fileName.startsWith('node:'))
+            .map((frame) => {
+              delete frame.source
+              return frame
+            })
+          : undefined
+
+        if (trace && trace[0])
+          files.add(`${trace[0].fileName!}:${trace[0].lineNumber!}:${trace[0].columnNumber!}`)
+
         return {
-          regex: {
-            pattern: info.regex.source,
-            flags: info.regex.flags,
-          },
-          calls: info.calls
-            .map((call): SerializedRegExpCall => {
-              return {
-                ...call,
-                trace: call.traceObj
-                  ? parse(call.traceObj)
-                    .slice(1)
-                    .filter(frame => frame.fileName && !frame.fileName.startsWith('node:'))
-                    .map((frame) => {
-                      delete frame.source
-                      return frame
-                    })
-                  : undefined,
-              }
-            }),
+          duration: call.duration,
+          stringLength: call.stringLength,
+          trace,
         }
       })
+
+      return {
+        regex: {
+          pattern: info.regex.source,
+          flags: info.regex.flags,
+        },
+        calls: info.calls.length,
+        callsInfos: infos,
+        durations: info.durations || getDurations(info),
+        files: Array.from(files),
+      }
+    }
+
+    return {
+      count: this.map.size,
+      countUnique: unique.size,
+      totalDuration,
+      regexes: items.map(info => dumpInfo(info)),
+    }
+  }
+}
+
+function getDurations(info: RegExpInfo): Durations {
+  let sum = 0
+  let min = Number.POSITIVE_INFINITY
+  let max = Number.NEGATIVE_INFINITY
+
+  info.calls
+    .forEach((call) => {
+      sum += call.duration
+      min = Math.min(min, call.duration)
+      max = Math.max(max, call.duration)
+    })
+
+  return {
+    count: info.calls.length,
+    sum,
+    avg: sum / info.calls.length,
+    min,
+    max,
   }
 }
 

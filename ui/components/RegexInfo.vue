@@ -1,43 +1,24 @@
 <script setup lang="ts">
 import type { SerializedRegExpInfo } from '../../src/types'
 
-const props = defineProps<{
+defineProps<{
   info: SerializedRegExpInfo
 }>()
-
-const duration = computed(() => {
-  let all = 0
-  let max = 0
-  let min = Number.POSITIVE_INFINITY
-  for (const call of props.info.calls) {
-    all += call.duration
-    max = Math.max(max, call.duration)
-    min = Math.min(min, call.duration)
-  }
-  const avg = all / props.info.calls.length
-  return {
-    all,
-    avg,
-    max,
-    min,
-  }
-})
 </script>
 
 <template>
   <div
     border="~ gray/50 rounded"
-    flex="~ col"
+    flex="~ col" w-100
   >
     <Shiki
       p2
       :code="`/${info.regex.pattern}/${info.regex.flags}`"
       lang="js"
+      of-auto text-wrap line-clamp-3
     />
-    <div border="t gray/50" p2>
+    <div border="t gray/50" p2 grid="~ cols-2 gap-10 items-start">
       <div
-        v-if="info.calls.length"
-        w-40
         font-mono text-right
         grid="~ cols-[max-content_1fr] gap-2 items-center"
       >
@@ -45,27 +26,35 @@ const duration = computed(() => {
           NUM
         </div>
         <div>
-          {{ info.calls.length }}
+          {{ info.durations.count }}
         </div>
         <div op50 text-sm uppercase>
           SUM
         </div>
-        <DurationDisplay :ms="duration.all" />
-        <template v-if="info.calls.length > 1">
-          <div op50 text-sm uppercase>
-            Avg
-          </div>
-          <DurationDisplay :ms="duration.avg" />
-          <div op50 text-sm uppercase>
-            Max
-          </div>
-          <DurationDisplay :ms="duration.max" />
-          <div op50 text-sm uppercase>
-            Min
-          </div>
-          <DurationDisplay :ms="duration.min" />
-        </template>
+        <DurationDisplay :ms="info.durations.sum" />
       </div>
+      <div
+        font-mono text-right
+        grid="~ cols-[max-content_1fr] gap-2 items-center"
+      >
+        <div op50 text-sm uppercase>
+          Avg
+        </div>
+        <DurationDisplay :ms="info.durations.avg" />
+        <div op50 text-sm uppercase>
+          Max
+        </div>
+        <DurationDisplay :ms="info.durations.max" />
+        <div op50 text-sm uppercase>
+          Min
+        </div>
+        <DurationDisplay :ms="info.durations.min" />
+      </div>
+    </div>
+    <div v-if="info.files?.length" border="t gray/50" p2 of-hidden>
+      <a v-for="f in info.files" :key="f" font-mono text-wrap>
+        {{ f }}
+      </a>
     </div>
   </div>
 </template>
