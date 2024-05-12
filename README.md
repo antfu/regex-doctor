@@ -8,6 +8,9 @@
 
 Monitor your RegExp consumption and provide suggestions to improve performance.
 
+> [!IMPORTANT]
+> Work in progress, not yet useable.
+
 ## Sponsors
 
 <p align="center">
