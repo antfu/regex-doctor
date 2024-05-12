@@ -1,45 +1,8 @@
 /* eslint-disable no-extend-native */
-import type { StackFrame } from 'error-stack-parser-es'
 import { parse } from 'error-stack-parser-es'
+import type { RegExpInfo, RegexDoctorOptions, SerializedRegExpCall, SerializedRegExpInfo } from './types'
 
-export interface RegExpObjectRepresentation {
-  pattern: string
-  flags: string
-}
-
-export interface SerializedRegExpInfo {
-  regex: RegExpObjectRepresentation
-  calls: SerializedRegExpCall[]
-}
-
-export interface SerializedRegExpCall {
-  duration: number
-  stringLength: number
-  string?: string
-  trace?: StackFrame[]
-}
-
-export interface RegExpCall {
-  duration: number
-  stringLength: number
-  string?: string
-  traceObj?: Error
-}
-
-export interface RegExpInfo {
-  regex: RegExp
-  calls: RegExpCall[]
-}
-
-export interface RegexDoctorOptions {
-  /**
-   * TODO:
-   * - support custom filter
-   * - support duration threshold
-   * - toggle stack trace
-   * - toggle string recording
-   */
-}
+export * from './types'
 
 export class RegexDoctor {
   map = new Map<RegExp, RegExpInfo>()

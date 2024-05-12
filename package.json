@@ -38,7 +38,7 @@
   ],
   "scripts": {
     "build": "unbuild",
-    "dev": "unbuild --stub",
+    "dev": "nr -C ui dev",
     "lint": "eslint .",
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
@@ -65,7 +65,8 @@
     "typescript": "^5.4.5",
     "unbuild": "^2.0.0",
     "vite": "^5.2.11",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "vue": "^3.4.27"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
