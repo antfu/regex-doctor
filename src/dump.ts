@@ -88,7 +88,7 @@ export function dump(
     const infos = calls.map((call) => {
       const trace = stacktrace && call.traceObj
         ? parse(call.traceObj, { slice: [1, 10] })
-          .filter(frame => frame.file && !frame.file.startsWith('node:'))
+          .filter(frame => frame.file)
           .map((frame) => {
             delete frame.raw
             return frame
