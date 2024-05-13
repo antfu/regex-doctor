@@ -2,7 +2,7 @@
   "name": "regex-doctor",
   "type": "module",
   "version": "0.0.0",
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@9.1.1",
   "description": "Monitor your RegExp consumption and provide suggestions to improve performance.",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
@@ -37,29 +37,35 @@
     "dist"
   ],
   "scripts": {
-    "build": "unbuild",
+    "build": "nr js:build && nr ui:build",
+    "start": "nr build && nr -C test/fixtures/vite build && nr dev",
     "dev": "nr -C ui dev",
+    "js:build": "unbuild",
+    "ui:build": "nr -C ui build",
     "lint": "eslint .",
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
-    "start": "esno src/index.ts",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "error-stack-parser-es": "^0.1.1"
+    "error-stack-parser-es": "^0.1.3",
+    "trace-record": "^0.1.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.17.0",
     "@antfu/ni": "^0.21.12",
     "@antfu/utils": "^0.7.8",
+    "@iconify-json/carbon": "^1.1.33",
+    "@iconify-json/ph": "^1.1.13",
     "@types/node": "^20.12.11",
     "bumpp": "^9.4.1",
     "eslint": "^9.2.0",
     "esno": "^4.7.0",
     "lint-staged": "^15.2.2",
-    "pnpm": "^9.1.0",
+    "pnpm": "^9.1.1",
+    "regex-doctor": "workspace:*",
     "rimraf": "^5.0.7",
     "simple-git-hooks": "^2.11.1",
     "typescript": "^5.4.5",

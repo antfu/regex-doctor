@@ -1,15 +1,28 @@
 <script setup lang="ts">
-import type { SerializedRegexDoctorResult } from '../../src/types'
+import type { RegexDoctorResult } from 'regex-doctor'
 
-const data = Object.freeze(await $fetch('/api/payload') as SerializedRegexDoctorResult)
+const payload = Object.freeze(await $fetch('/api/payload') as RegexDoctorResult)
 </script>
 
 <template>
-  <div p4 m4 border="~ gray/50 rounded">
-    Number of regexes: {{ data.count }}<br>
-    Total time in regex: <DurationDisplay :ms="data.totalDuration" />
+  <div p4 border="b base rounded">
+    <span font-bold>Regex</span><span font-100>Doctor</span>
   </div>
-  <div flex="~ gap-2 wrap" p4>
-    <RegexInfo v-for="info, key of data.regexes" :key :info />
+  <div p4 border="b base rounded" grid="~ cols-8">
+    <DataField title="Unique regexes">
+      <NumberDisplay :number="payload.countUnique" />
+    </DataField>
+    <DataField title="Regex instances">
+      <NumberDisplay :number="payload.count" />
+    </DataField>
+    <DataField title="Regexes with details">
+      <NumberDisplay :number="payload.regexInfos.length" />
+    </DataField>
+    <DataField title="Total time in regex">
+      <DurationDisplay :ms="payload.totalDuration" />
+    </DataField>
+  </div>
+  <div py4>
+    <RegexTable :payload="payload" />
   </div>
 </template>

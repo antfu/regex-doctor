@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
+import process from 'node:process'
 import { build } from 'vite'
-// eslint-disable-next-line antfu/no-import-dist
-import { startRegexDoctor } from '../dist/index.mjs'
+import { startRegexDoctor } from 'regex-doctor'
 
 {
   const doctor = startRegexDoctor()
@@ -12,6 +12,7 @@ import { startRegexDoctor } from '../dist/index.mjs'
     'regex-doctor.json',
     JSON.stringify(doctor.dump({
       stacktrace: true,
+      cwd: process.cwd(),
     }), null, 2),
     'utf-8',
   )

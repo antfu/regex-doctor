@@ -37,8 +37,8 @@ const color = computed(() => {
     return 'text-orange'
   if (props.ms > 0.1)
     return 'text-yellow'
-  if (props.ms < 0.0001)
-    return 'op50'
+  if (unit.value === 'μs')
+    return 'op50 text-sm'
   return ''
 })
 </script>

@@ -5,16 +5,10 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@unocss/nuxt',
     '@nuxtjs/color-mode',
-    'nuxt-shiki',
   ],
 
-  shiki: {
-    bundledLangs: ['ts', 'js'],
-    bundledThemes: ['vitesse-dark', 'vitesse-light'],
-    defaultTheme: {
-      dark: 'vitesse-dark',
-      light: 'vitesse-light',
-    },
+  unocss: {
+    autoImport: false,
   },
 
   ssr: false,
@@ -36,6 +30,25 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    preset: 'static',
+    output: {
+      dir: '../dist/ui',
+    },
+    routeRules: {
+      '/': {
+        prerender: true,
+      },
+      '/200.html': {
+        prerender: true,
+      },
+      '/404.html': {
+        prerender: true,
+      },
+      '/*': {
+        prerender: false,
+      },
+    },
+    sourceMap: false,
     esbuild: {
       options: {
         target: 'esnext',
@@ -61,12 +74,20 @@ export default defineNuxtConfig({
     },
   },
 
+  vite: {
+    vue: {
+      script: {
+        defineModel: true,
+      },
+    },
+    base: './',
+  },
+
   devtools: {
     enabled: false,
   },
 
   features: {
-    // For UnoCSS
     inlineStyles: false,
   },
 })

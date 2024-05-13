@@ -2,6 +2,6 @@ packages:
   - playground
   - docs
   - ui
-  - fixture
+  - test/fixtures/*
   - packages/*
   - examples/*

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import 'floating-vue/dist/style.css'
+import './style.css'
+import 'uno.css'
+
 useHead({
   title: 'RegexDoctor',
 })
@@ -7,23 +11,3 @@ useHead({
 <template>
   <NuxtPage />
 </template>
-
-<style>
-html,
-body,
-#__nuxt {
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-}
-
-html.dark {
-  color-scheme: dark;
-}
-
-html.dark .shiki,
-html.dark .shiki span {
-  background: var(--shiki-dark-bg) !important;
-  color: var(--shiki-dark) !important;
-}
-</style>
