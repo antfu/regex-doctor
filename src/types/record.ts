@@ -4,7 +4,7 @@ export interface RecordRegexCall {
   duration: number
   inputLength: number
   input?: string
-  traceObj?: Error
+  stack?: string
 }
 
 export interface RecordRegexInfo {

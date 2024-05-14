@@ -12,3 +12,4 @@ temp
 regex-doctor.json
 .nuxt
 test/fixtures/**/*.d.ts
+.regex-doctor

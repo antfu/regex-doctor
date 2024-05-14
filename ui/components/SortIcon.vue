@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  sorted: boolean
+  sorted: boolean | null
   sortOrder: number
 }>()
 </script>

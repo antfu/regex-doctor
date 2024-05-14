@@ -1,5 +1,4 @@
-import { fileURLToPath } from 'node:url'
-import { parse } from 'error-stack-parser-es/lite'
+import { parseStack } from 'error-stack-parser-es/lite'
 import { getTrace } from 'trace-record'
 import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCallsDurations, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexInfo } from './types'
 
@@ -18,7 +17,7 @@ export function dump(
 ) {
   const {
     limitCalls = 5,
-    stacktrace = false,
+    // stacktrace = true,
   } = options
 
   const filters = {
@@ -85,14 +84,9 @@ export function dump(
 
     const files = new Set<string>()
 
-    const infos = calls.map((call) => {
-      const trace = stacktrace && call.traceObj
-        ? parse(call.traceObj, { slice: [1, 10] })
-          .filter(frame => frame.file)
-          .map((frame) => {
-            delete frame.raw
-            return frame
-          })
+    let infos = calls.map((call) => {
+      const trace = call.stack
+        ? parseStack(call.stack, { slice: [1, 10] }).filter(frame => frame.file)
         : undefined
 
       if (trace && trace[0])
@@ -106,7 +100,7 @@ export function dump(
     })
 
     if (limitCalls > 0)
-      infos.splice(limitCalls)
+      infos = infos.slice(0, limitCalls)
 
     return {
       regex: {
@@ -137,7 +131,7 @@ function normalizeFilepath(filepath: string) {
     filepath = filepath.slice(6)
   // normalize file path
   if (filepath.startsWith('file://'))
-    return fileURLToPath(filepath)
+    filepath = filepath.slice(7)
   return filepath
 }
 
