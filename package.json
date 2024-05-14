@@ -57,7 +57,7 @@
   "dependencies": {
     "error-stack-parser-es": "^0.1.4",
     "exit-hook": "^4.0.0",
-    "trace-record": "^0.1.2"
+    "trace-record": "^0.2.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.18.0",
@@ -65,7 +65,7 @@
     "@antfu/utils": "^0.7.8",
     "@iconify-json/carbon": "^1.1.33",
     "@iconify-json/ph": "^1.1.13",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "bumpp": "^9.4.1",
     "eslint": "^9.2.0",
     "esno": "^4.7.0",

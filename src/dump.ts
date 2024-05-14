@@ -31,13 +31,14 @@ export function dump(
 
   Array.from(map.values())
     .forEach((info) => {
-      const key = `${info.regex.source}--${info.regex.flags}`
+      const key = `${info.regex.source}--${info.regex.flags}${info.dynamic ? '--dynamic' : ''}`
       const merged = uniqueMap.get(key) || {
         regex: info.regex,
         calls: [],
         copies: 0,
         durations: undefined!,
         filesCreated: [],
+        dynamic: info.dynamic,
       }
 
       if (!info.filepath) {
@@ -126,6 +127,7 @@ export function dump(
       durations: info.durations || getDurations(info),
       filesCalled,
       filesCreated: info.filesCreated,
+      dynamic: info.dynamic,
       packages: Array.from(packages),
     }
   }

@@ -15,10 +15,12 @@ export interface RecordRegexInfo {
    * Read from `trace-record`
    */
   filepath?: string
+  dynamic?: boolean
 }
 
 export interface MergedRecordRegexInfo {
   regex: RegExp
+  dynamic?: boolean
   calls: RecordRegexCall[]
   copies: number
   durations: RegexCallsDurations

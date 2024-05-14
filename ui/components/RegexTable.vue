@@ -24,6 +24,11 @@ const filtered = computed(() => {
 
 <template>
   <DataTable :value="filtered.slice(0, 100)" data-key="no" table-class="w-full text-right data-table">
+    <Column field="dynamic" header="Dynamic">
+      <template #body="{ data }">
+        <PackageNameDisplay v-if="data.dynamic" name="new" />
+      </template>
+    </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
         <Dropdown>

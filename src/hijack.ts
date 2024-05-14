@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/error-message */
-/* eslint-disable no-extend-native */
 
+import { record } from 'trace-record'
 import type { RecordRegexCall } from './types'
 import type { RegexDoctor } from './doctor'
 
@@ -14,6 +14,23 @@ let _restore = noop
 export function restore() {
   _restore()
 }
+
+const RegExp = globalThis.RegExp
+
+const MyRegExp = function (pattern: string | RegExp, flags?: string) {
+  const regex = RegExp(pattern, flags)
+  record(regex, { level: 2 })
+
+  for (const listener of listeners) {
+    listener.map.set(regex, {
+      regex,
+      calls: [],
+      dynamic: true,
+    })
+  }
+  return regex
+}
+MyRegExp.prototype = RegExp.prototype
 
 export function hijack() {
   if (hijacked)
@@ -59,7 +76,11 @@ export function hijack() {
     }
   }
 
+  // @ts-expect-error - hijacking
+  globalThis.RegExp = MyRegExp
+
   _restore = function () {
+    globalThis.RegExp = RegExp
     RegExp.prototype.exec = _exec
     hijacked = false
     _restore = noop

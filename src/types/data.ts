@@ -73,6 +73,10 @@ export interface RegexInfo {
    * Package names where the regex was called or created
    */
   packages?: string[]
+  /**
+   * Is dynamic regex
+   */
+  dynamic?: boolean
 }
 
 export interface RegexCall {
