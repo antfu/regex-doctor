@@ -1,7 +1,8 @@
 // @unocss-include
 import type { VNode } from 'vue'
 import { defineComponent, h } from 'vue'
-import { extractLocation } from 'error-stack-parser-es/lite'
+import { extractCodeLocation, extractPackagePath } from '../../src/shared/path'
+import PackageNameDisplay from './PackageNameDisplay.vue'
 
 export default defineComponent({
   name: 'FileLink',
@@ -24,22 +25,16 @@ export default defineComponent({
     }
 
     return () => {
-      const [filename, line, col] = extractLocation(props.filepath)
+      const [filename, line, col] = extractCodeLocation(props.filepath)
 
       let content: (string | VNode)[] = [filename]
-      if (filename.includes('/node_modules/')) {
-        const match = [...filename?.matchAll(/\/node_modules\//g)]
-        const last = match[match.length - 1]
-        if (last) {
-          const packageName = filename.slice(last.index + last[0].length)
-            .match(/^(@[^/]+\/[^/]+)|([^/]+)/)?.[0]
-          if (packageName) {
-            content = [
-              h('span', { class: 'text-yellow-500' }, packageName),
-              h('span', { class: 'op50' }, filename.slice(last.index + last[0].length + packageName.length)),
-            ]
-          }
-        }
+
+      const r = extractPackagePath(filename)
+      if (r.package) {
+        content = [
+          h(PackageNameDisplay, { name: r.package }),
+          h('span', { class: 'op50' }, r.path),
+        ]
       }
       else {
         if (props.cwd && filename.startsWith(props.cwd)) {

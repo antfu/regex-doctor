@@ -4,6 +4,8 @@ import { getHighlighterCore } from 'shiki/core'
 
 const shiki = ref<HighlighterCore>()
 
+const cache = new Map<string, string>()
+
 getHighlighterCore({
   themes: [
     import('shiki/themes/vitesse-dark.mjs'),
@@ -28,9 +30,13 @@ const props = defineProps<{
 }>()
 
 const highlighted = computed(() => {
+  if (cache.has(props.code))
+    return cache.get(props.code)!
+
   if (!shiki.value)
     return ''
-  return shiki.value.codeToHtml(props.code, {
+
+  const code = shiki.value.codeToHtml(props.code, {
     lang: props.lang,
     themes: {
       dark: 'vitesse-dark',
@@ -39,6 +45,9 @@ const highlighted = computed(() => {
     defaultColor: false,
     structure: 'inline',
   })
+
+  cache.set(props.code, code)
+  return code
 })
 </script>
 

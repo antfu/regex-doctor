@@ -4,13 +4,26 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { Dropdown } from 'floating-vue'
 
-defineProps<{
+const props = defineProps<{
   payload: RegexDoctorResult
 }>()
+
+const filters = reactive({
+  package: '',
+})
+
+const filtered = computed(() => {
+  let list = props.payload.regexInfos
+
+  if (filters.package)
+    list = list.filter(item => item.packages?.includes(filters.package))
+
+  return list
+})
 </script>
 
 <template>
-  <DataTable :value="payload.regexInfos" table-class="w-full text-right data-table">
+  <DataTable :value="filtered.slice(0, 100)" data-key="no" table-class="w-full text-right data-table">
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
         <Dropdown>
@@ -83,42 +96,57 @@ defineProps<{
     </Column>
     <Column field="files" header="Used in" sortable header-class="pr-4">
       <template #body="{ data }">
-        <Dropdown>
-          <button pr-4 font-mono w-full flex="~ gap-1 items-center justify-end">
-            <div
-              v-if="data.filesCreated?.length" i-ph-file-code-duotone text-purple
-              title="Regex creation source"
-            />
-            <div op50 :class="data.filesCalled?.length === 1 ? 'i-ph-file-text-duotone' : 'i-ph-files-duotone'" />
-            {{ data.filesCalled?.length }}
-          </button>
-          <template #popper>
-            <div py2 px3 flex="~ col gap-1 items-start" text-sm>
-              <template v-if="data.filesCreated?.length">
-                <div op50 text-sm>
-                  Created in:
+        <div flex="~ gap-1 items-center justify-end">
+          <Dropdown>
+            <button pr-4 font-mono flex="~ gap-1 items-center justify-end">
+              <div flex="inline gap-2 wrap justify-end">
+                <PackageNameDisplay v-for="name in data.packages" :key="name" :name="name" />
+              </div>
+              <div
+                v-if="data.filesCreated?.length" i-ph-file-code-duotone text-purple
+                title="Regex creation source"
+              />
+              <div op50 i-ph-files-duotone />
+              {{ data.filesCalled?.length }}
+            </button>
+            <template #popper>
+              <div text-sm>
+                <div v-if="data.packages?.length" p3 border="b base" flex="~ col gap-2 items-start">
+                  <div op50 text-sm>
+                    Packages
+                  </div>
+                  <div flex="inline gap-2 wrap">
+                    <button v-for="name in data.packages" :key="name" @click="filters.package = name">
+                      <PackageNameDisplay :name="name" />
+                    </button>
+                  </div>
                 </div>
-                <FileLink
-                  v-for="file of data.filesCreated"
-                  :key="file"
-                  :filepath="file"
-                  :cwd="payload.cwd"
-                />
-              </template>
-              <template v-if="data.filesCalled?.length">
-                <div op50 text-sm>
-                  Used in:
+                <div v-if="data.filesCreated?.length" p3 border="b base" flex="~ col gap-2 items-start">
+                  <div op50 text-sm>
+                    Created in:
+                  </div>
+                  <FileLink
+                    v-for="file of data.filesCreated"
+                    :key="file"
+                    :filepath="file"
+                    :cwd="payload.cwd"
+                  />
                 </div>
-                <FileLink
-                  v-for="file of data.filesCalled"
-                  :key="file"
-                  :filepath="file"
-                  :cwd="payload.cwd"
-                />
-              </template>
-            </div>
-          </template>
-        </Dropdown>
+                <div v-if="data.filesCalled?.length" p3 flex="~ col gap-2 items-start">
+                  <div op50 text-sm>
+                    Used in:
+                  </div>
+                  <FileLink
+                    v-for="file of data.filesCalled"
+                    :key="file"
+                    :filepath="file"
+                    :cwd="payload.cwd"
+                  />
+                </div>
+              </div>
+            </template>
+          </Dropdown>
+        </div>
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />

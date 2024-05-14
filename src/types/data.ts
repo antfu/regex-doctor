@@ -38,6 +38,10 @@ export interface RegexDoctorResult {
 
 export interface RegexInfo {
   /**
+   * Unique id
+   */
+  no: number
+  /**
    * Serialized regex object
    */
   regex: RegexObjectRepresentation
@@ -65,6 +69,10 @@ export interface RegexInfo {
    * Files where the regex was called
    */
   filesCalled?: string[]
+  /**
+   * Package names where the regex was called or created
+   */
+  packages?: string[]
 }
 
 export interface RegexCall {

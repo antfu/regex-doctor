@@ -1,6 +1,7 @@
 import { parseStack } from 'error-stack-parser-es/lite'
 import { getTrace } from 'trace-record'
 import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCallsDurations, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexInfo } from './types'
+import { extractPackagePath, normalizeFilepath } from './shared/path'
 
 const defaultFilters: Required<RegexDoctorDumpFiltersOptions> = {
   top: 20,
@@ -78,13 +79,14 @@ export function dump(
     return false
   })
 
-  function dumpInfo(info: MergedRecordRegexInfo): RegexInfo {
+  function dumpInfo(info: MergedRecordRegexInfo, idx: number): RegexInfo {
     const calls = info.calls
       .sort((a, b) => b.duration - a.duration)
 
     const files = new Set<string>()
 
     let infos = calls.map((call) => {
+      // TODO: group by unique stacks
       const trace = call.stack
         ? parseStack(call.stack, { slice: [1, 10] }).filter(frame => frame.file)
         : undefined
@@ -99,10 +101,21 @@ export function dump(
       }
     })
 
+    // TODO: Filter if above average by 2x or something
     if (limitCalls > 0)
       infos = infos.slice(0, limitCalls)
 
+    const filesCalled = Array.from(files)
+
+    const packages = new Set<string>()
+    for (const file of [...filesCalled, ...info.filesCreated]) {
+      const r = extractPackagePath(file)
+      if (r.package)
+        packages.add(r.package)
+    }
+
     return {
+      no: idx,
       regex: {
         pattern: info.regex.source,
         flags: info.regex.flags,
@@ -111,8 +124,9 @@ export function dump(
       calls: info.calls.length,
       callsInfos: infos,
       durations: info.durations || getDurations(info),
-      filesCalled: Array.from(files),
+      filesCalled,
       filesCreated: info.filesCreated,
+      packages: Array.from(packages),
     }
   }
 
@@ -120,19 +134,9 @@ export function dump(
     count: map.size,
     countUnique: uniqueMap.size,
     totalDuration,
-    regexInfos: infos.map(info => dumpInfo(info)),
+    regexInfos: infos.map((info, idx) => dumpInfo(info, idx)),
     cwd: options.cwd,
   }
-}
-
-function normalizeFilepath(filepath: string) {
-  // TODO: seems like a bug in `error-stack-parser-es`
-  if (filepath.startsWith('async '))
-    filepath = filepath.slice(6)
-  // normalize file path
-  if (filepath.startsWith('file://'))
-    filepath = filepath.slice(7)
-  return filepath
 }
 
 function getDurations(info: RecordRegexInfo): RegexCallsDurations {
