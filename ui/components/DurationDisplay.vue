@@ -1,7 +1,13 @@
 <script setup lang="ts">
-const props = defineProps<{
-  ms: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    ms: number
+    colorful?: boolean
+  }>(),
+  {
+    colorful: true,
+  },
+)
 
 const unit = ref('')
 const number = ref(0)
@@ -31,6 +37,8 @@ watchEffect(() => {
 })
 
 const color = computed(() => {
+  if (props.colorful === false)
+    return ''
   if (props.ms > 0.5)
     return 'text-red'
   if (props.ms > 0.2)

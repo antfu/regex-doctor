@@ -48,14 +48,22 @@ export function hijack() {
       const result = _exec.call(this, string)
       const end = performance.now()
       const duration = end - start
-      const call = Object.freeze(<RecordRegexCall>{
+      const call: RecordRegexCall = {
         stack: duration > 0.001
           ? new Error().stack
           : undefined,
         duration,
         input: string,
         inputLength: string.length,
-      })
+      }
+
+      if (result) {
+        call.matched = true
+        call.index = result.index
+        call.groups = result.length - 1
+      }
+
+      Object.freeze(call)
 
       for (const listener of listeners) {
         const map = listener.map

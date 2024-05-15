@@ -18,8 +18,12 @@ const payload = Object.freeze(await $fetch('/api/payload') as RegexDoctorResult)
     <DataField title="Regexes with details">
       <NumberDisplay :number="payload.regexInfos.length" />
     </DataField>
-    <DataField title="Total time in regex">
-      <DurationDisplay :ms="payload.totalDuration" />
+    <DataField title="Total regex execution time">
+      <DurationDisplay :ms="payload.totalExecution" :colorful="false" />
+      <span op50 ml1>({{ (payload.totalExecution / payload.totalDuration * 100).toFixed(2) }}%)</span>
+    </DataField>
+    <DataField title="Total time of the process">
+      <DurationDisplay :ms="payload.totalDuration" :colorful="false" />
     </DataField>
   </div>
   <div py4>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { RegexDoctorResult } from 'regex-doctor'
+import type { RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { Dropdown } from 'floating-vue'
+import { Dropdown, Tooltip } from 'floating-vue'
 
 const props = defineProps<{
   payload: RegexDoctorResult
@@ -20,25 +20,27 @@ const filtered = computed(() => {
 
   return list
 })
+
+const currentRegex = shallowRef<RegexInfo | null>(null)
 </script>
 
 <template>
   <DataTable :value="filtered.slice(0, 100)" data-key="no" table-class="w-full text-right data-table">
-    <Column field="dynamic" header="Dynamic">
+    <Column field="dynamic" header="Dynamic" header-class="pl4">
       <template #body="{ data }">
         <PackageNameDisplay v-if="data.dynamic" name="new" />
       </template>
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
-        <Dropdown>
-          <div flex h-full pl4>
+        <Tooltip>
+          <button flex h-full pl2 @click="currentRegex = data">
             <ShikiInline
               :code="`/${data.regex.pattern}/${data.regex.flags}`"
               lang="js" text-gray:50
               of-hidden max-w-150 text-ellipsis ws-nowrap mya
             />
-          </div>
+          </button>
           <template #popper>
             <div p2>
               <ShikiInline
@@ -48,7 +50,7 @@ const filtered = computed(() => {
               />
             </div>
           </template>
-        </Dropdown>
+        </Tooltip>
       </template>
     </Column>
     <Column field="calls" header="Calls" sortable>
@@ -85,7 +87,9 @@ const filtered = computed(() => {
     </Column>
     <Column field="durations.max" header="Max" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.durations.max" />
+        <button @click="currentRegex = data">
+          <DurationDisplay :ms="data.durations.max" />
+        </button>
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
@@ -104,7 +108,7 @@ const filtered = computed(() => {
         <div flex="~ gap-1 items-center justify-end">
           <Dropdown>
             <button pr-4 font-mono flex="~ gap-1 items-center justify-end">
-              <div flex="inline gap-2 wrap justify-end">
+              <div flex="inline gap-2 justify-end wrap" max-w-80>
                 <PackageNameDisplay v-for="name in data.packages" :key="name" :name="name" />
               </div>
               <div
@@ -158,4 +162,13 @@ const filtered = computed(() => {
       </template>
     </Column>
   </DataTable>
+  <div
+    v-if="currentRegex"
+    fixed w-screen h-screen inset-0 flex backdrop-blur-5px z-100
+  >
+    <div absolute inset-0 bg-black:10 z--1 @click="currentRegex = null" />
+    <div bg-base shadow ma w-80vw h-80vh border="~ base rounded" of-auto>
+      <RegexDetail :info="currentRegex" :payload="payload" />
+    </div>
+  </div>
 </template>

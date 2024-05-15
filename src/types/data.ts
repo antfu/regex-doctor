@@ -1,4 +1,5 @@
 import type { StackFrameLite } from 'error-stack-parser-es/lite'
+import type { RecordRegexCall } from './record'
 
 export interface RegexCallsDurations {
   count: number
@@ -23,6 +24,10 @@ export interface RegexDoctorResult {
    */
   countUnique: number
   /**
+   * Total time spent in executing regexes
+   */
+  totalExecution: number
+  /**
    * Total time spent in all regexes
    */
   totalDuration: number
@@ -34,6 +39,10 @@ export interface RegexDoctorResult {
    * Working directory
    */
   cwd?: string
+  /**
+   * CLI arguments
+   */
+  argv?: string[]
 }
 
 export interface RegexInfo {
@@ -53,6 +62,10 @@ export interface RegexInfo {
    * Notable call infos
    */
   callsInfos: RegexCall[]
+  /**
+   * Array of stack traces
+   */
+  traces?: (StackFrameLite[])[]
   /**
    * Number of calls
    */
@@ -79,9 +92,13 @@ export interface RegexInfo {
   dynamic?: boolean
 }
 
-export interface RegexCall {
-  duration: number
-  inputLength: number
-  input?: string
-  trace?: StackFrameLite[]
+export interface RegexCall extends Pick<RecordRegexCall, 'duration' | 'inputLength' | 'matched' | 'index' | 'groups'> {
+  /**
+   * Input string, number stands for the truncated length
+   */
+  input?: (number | string)[]
+  /**
+   * Index of the stack trace map
+   */
+  trace?: number
 }

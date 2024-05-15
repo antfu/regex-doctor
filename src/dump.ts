@@ -1,7 +1,9 @@
+import type { StackFrameLite } from 'error-stack-parser-es/lite'
 import { parseStack } from 'error-stack-parser-es/lite'
 import { getTrace } from 'trace-record'
-import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCallsDurations, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexInfo } from './types'
+import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCall, RegexCallsDurations, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexDoctorResult, RegexInfo } from './types'
 import { extractPackagePath, normalizeFilepath } from './shared/path'
+import type { RegexDoctor } from './doctor'
 
 const defaultFilters: Required<RegexDoctorDumpFiltersOptions> = {
   top: 20,
@@ -13,11 +15,13 @@ const defaultFilters: Required<RegexDoctorDumpFiltersOptions> = {
 }
 
 export function dump(
-  map: Map<RegExp, RecordRegexInfo>,
+  doctor: RegexDoctor,
   options: RegexDoctorDumpOptions = {},
-) {
+): RegexDoctorResult {
+  const map = doctor.map
   const {
     limitCalls = 5,
+    limitInputLength = 500,
     // stacktrace = true,
   } = options
 
@@ -26,7 +30,7 @@ export function dump(
     ...defaultFilters,
   }
 
-  let totalDuration = 0
+  let totalExecution = 0
   const uniqueMap = new Map<string, MergedRecordRegexInfo>()
 
   Array.from(map.values())
@@ -60,7 +64,7 @@ export function dump(
   let infos = Array.from(uniqueMap.values())
   infos.forEach((info) => {
     info.durations = getDurations(info)
-    totalDuration += info.durations.sum
+    totalExecution += info.durations.sum
   })
   infos.sort((a, b) => b.durations!.sum - a.durations!.sum)
 
@@ -85,20 +89,56 @@ export function dump(
       .sort((a, b) => b.duration - a.duration)
 
     const files = new Set<string>()
+    const traces = new Map<string, { idx: number, trace: StackFrameLite[] }>()
 
-    let infos = calls.map((call) => {
-      // TODO: group by unique stacks
-      const trace = call.stack
-        ? parseStack(call.stack, { slice: [1, 10] }).filter(frame => frame.file)
-        : undefined
+    let infos = calls.map((call): RegexCall => {
+      let traceIdx: number | undefined
+      if (call.stack) {
+        if (traces.has(call.stack)) {
+          traceIdx = traces.get(call.stack)!.idx
+        }
+        else {
+          const trace = parseStacktrace(call.stack)
+          if (trace && trace[0]) {
+            files.add(`${normalizeFilepath(trace[0].file!)}:${trace[0].line!}:${trace[0].col!}`)
+            traceIdx = traces.size
+            traces.set(call.stack, { idx: traceIdx, trace })
+          }
+        }
+      }
 
-      if (trace && trace[0])
-        files.add(`${normalizeFilepath(trace[0].file!)}:${trace[0].line!}:${trace[0].col!}`)
-
+      let input: RegexCall['input']
+      if (call.input != null) {
+        input = []
+        if (call.input.length <= limitInputLength) {
+          input.push(call.input)
+        }
+        else if (call.index != null) {
+          const index = Math.max(0, Math.round(call.index - limitInputLength * 0.3))
+          if (index > 0)
+            input.push(index)
+          const snippet = call.input.slice(index, index + limitInputLength)
+          input.push(snippet)
+          const rest = call.inputLength - index - snippet.length
+          if (rest > 0)
+            input.push(rest)
+        }
+        else {
+          const snippet = call.input.slice(0, limitInputLength)
+          input.push(snippet)
+          const rest = call.inputLength - snippet.length
+          if (rest > 0)
+            input.push(rest)
+        }
+      }
       return {
         duration: call.duration,
         inputLength: call.inputLength,
-        trace,
+        input,
+        trace: traceIdx,
+        matched: call.matched,
+        index: call.index,
+        groups: call.groups,
       }
     })
 
@@ -124,6 +164,9 @@ export function dump(
       copies: info.copies,
       calls: info.calls.length,
       callsInfos: infos,
+      traces: Array.from(traces.values())
+        .sort((a, b) => a.idx - b.idx)
+        .map(({ trace }) => trace),
       durations: info.durations || getDurations(info),
       filesCalled,
       filesCreated: info.filesCreated,
@@ -135,7 +178,8 @@ export function dump(
   return {
     count: map.size,
     countUnique: uniqueMap.size,
-    totalDuration,
+    totalDuration: doctor.duration,
+    totalExecution,
     regexInfos: infos.map((info, idx) => dumpInfo(info, idx)),
     cwd: options.cwd,
   }
@@ -160,4 +204,18 @@ function getDurations(info: RecordRegexInfo): RegexCallsDurations {
     min,
     max,
   }
+}
+
+const traceCache: Map<string, StackFrameLite[] | undefined> = new Map()
+
+function parseStacktrace(string?: string) {
+  if (!string)
+    return
+  if (traceCache.has(string))
+    return traceCache.get(string)
+  const trace = string
+    ? parseStack(string, { slice: [1, 10] }).filter(frame => frame.file)
+    : undefined
+  traceCache.set(string, trace)
+  return trace
 }

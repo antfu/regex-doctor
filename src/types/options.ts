@@ -14,6 +14,13 @@ export interface RegexDoctorDumpOptions {
   limitCalls?: number
 
   /**
+   * Maximum length of the input to dump
+   *
+   * @default 500
+   */
+  limitInputLength?: number
+
+  /**
    * Filters for regex details. Include if one of the requirements is met.
    */
   filters?: RegexDoctorDumpFiltersOptions

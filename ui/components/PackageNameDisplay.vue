@@ -14,5 +14,5 @@ const style = computed(() => ({
 </script>
 
 <template>
-  <code :style="style" px1 rounded text-sm>{{ name }}</code>
+  <code :style="style" px1 rounded text-sm ws-nowrap>{{ name }}</code>
 </template>

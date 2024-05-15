@@ -30,6 +30,10 @@ html:not(.dark) .shiki span {
   --uno: text-primary important-op100;
 }
 
+.data-table td {
+  --uno: px2;
+}
+
 .data-table th {
   --uno: py2 text-sm op50 font-normal;
 }

@@ -7,17 +7,31 @@ import { dump } from './dump'
 export class RegexDoctor {
   map = new Map<RegExp, RecordRegexInfo>()
 
+  duration = 0
+  timeStart: number | undefined
+
   constructor(
     public options: RegexDoctorOptions = {},
   ) { }
 
+  private saveDuration(start: boolean = !!this.timeStart) {
+    if (this.timeStart) {
+      this.duration += performance.now() - this.timeStart
+      this.timeStart = undefined
+    }
+    if (start)
+      this.timeStart = performance.now()
+  }
+
   stop() {
+    this.saveDuration(false)
     listeners.delete(this)
     if (!listeners.size)
       restore()
   }
 
   start() {
+    this.saveDuration(true)
     hijack()
     listeners.add(this)
 
@@ -67,6 +81,7 @@ export class RegexDoctor {
   }
 
   dump(options: RegexDoctorDumpOptions = {}): RegexDoctorResult {
-    return dump(this.map, options)
+    this.saveDuration()
+    return dump(this, options)
   }
 }

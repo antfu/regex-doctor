@@ -5,6 +5,9 @@ export interface RecordRegexCall {
   inputLength: number
   input?: string
   stack?: string
+  matched?: boolean
+  index?: number
+  groups?: number
 }
 
 export interface RecordRegexInfo {
