@@ -1,7 +1,7 @@
 {
   "name": "regex-doctor",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "pnpm@9.1.1",
   "description": "Monitor your RegExp consumption and provide suggestions to improve performance.",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
