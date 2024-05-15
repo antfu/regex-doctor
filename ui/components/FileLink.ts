@@ -17,7 +17,7 @@ export default defineComponent({
   },
   setup(props) {
     function openFile() {
-      $fetch('/__open-in-editor', {
+      $fetch('/api/launch', {
         query: {
           file: props.filepath.replace('file://', ''),
         },

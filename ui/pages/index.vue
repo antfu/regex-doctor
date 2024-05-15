@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import type { RegexDoctorResult } from 'regex-doctor'
+import { version } from '../../package.json'
 
-const payload = Object.freeze(await $fetch('/api/payload') as RegexDoctorResult)
+const payload = Object.freeze(await $fetch('/api/payload.json') as RegexDoctorResult)
 </script>
 
 <template>
   <div p4 border="b base rounded">
-    <span font-bold>Regex</span><span font-100>Doctor</span>
+    <div>
+      <span font-bold>Regex</span><span font-100>Doctor</span> <sup op50>v{{ version }}</sup>
+    </div>
+    <div v-if="payload.cwd" font-mono text-xs op50>
+      {{ payload.cwd }}
+    </div>
   </div>
   <div p4 border="b base rounded" grid="~ cols-8">
     <DataField title="Unique regexes">

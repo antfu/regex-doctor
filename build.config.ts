@@ -5,6 +5,7 @@ export default defineBuildConfig({
     'src/index',
     'src/register',
     'src/cli',
+    'src/dirs',
   ],
   declaration: true,
   clean: true,

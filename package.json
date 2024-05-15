@@ -38,7 +38,9 @@
       ]
     }
   },
+  "bin": "./bin.mjs",
   "files": [
+    "bin.mjs",
     "dist"
   ],
   "scripts": {
@@ -55,8 +57,15 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
+    "cac": "^6.7.14",
     "error-stack-parser-es": "^0.1.4",
     "exit-hook": "^4.0.0",
+    "get-port-please": "^3.1.2",
+    "h3": "^1.11.1",
+    "launch-editor": "^2.6.1",
+    "mrmime": "^2.0.0",
+    "open": "^10.1.0",
+    "picocolors": "^1.0.1",
     "trace-record": "^0.2.0"
   },
   "devDependencies": {
@@ -79,6 +88,11 @@
     "vite": "^5.2.11",
     "vitest": "^1.6.0",
     "vue": "^3.4.27"
+  },
+  "pnpm": {
+    "overrides": {
+      "nitropack": "2.8.1"
+    }
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

@@ -23,6 +23,7 @@
     "@unocss/nuxt": "^0.60.2",
     "@vueuse/nuxt": "^10.9.0",
     "consola": "^3.2.3",
+    "launch-editor": "^2.6.1",
     "nuxi": "^3.11.1",
     "nuxt": "^3.11.2",
     "shiki": "^1.5.2",
