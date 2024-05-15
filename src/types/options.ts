@@ -71,4 +71,11 @@ export interface RegexDoctorDumpFiltersOptions {
    * @default 0.2
    */
   minDurationMax?: number
+
+  /**
+   * Maximum amount of regexes details. Guarded for record memory usage.
+   *
+   * @default 300
+   */
+  maximumAmount?: number
 }

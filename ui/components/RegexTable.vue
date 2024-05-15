@@ -33,9 +33,9 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
-        <button flex h-full pl2 @click="currentRegex = data">
+        <button flex h-full pl2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
           <ShikiInline
-            :code="`/${data.regex.pattern}/${data.regex.flags}`"
+            :code="`/${data.pattern}/${data.flags}`"
             lang="js" text-gray:50
             of-hidden max-w-150 text-ellipsis ws-nowrap mya
           />
@@ -58,43 +58,43 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="summary.sum" header="Total" sortable>
+    <Column field="sum" header="Total" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.summary.sum" />
+        <DurationDisplay :ms="data.sum" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="summary.avg" header="Avg" sortable>
+    <Column field="avg" header="Avg" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.summary.avg" />
+        <DurationDisplay :ms="data.avg" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="summary.max" header="Max" sortable>
+    <Column field="max" header="Max" sortable>
       <template #body="{ data }">
         <button @click="currentRegex = data">
-          <DurationDisplay :ms="data.summary.max" />
+          <DurationDisplay :ms="data.max" />
         </button>
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="summary.min" header="Min" sortable>
+    <Column field="min" header="Min" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.summary.min" />
+        <DurationDisplay :ms="data.min" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="summary.matchRate" header="Matches" sortable>
+    <Column field="matchRate" header="Matches" sortable>
       <template #body="{ data }">
-        <PercentageDisplay :value="data.summary.matchRate" />
+        <PercentageDisplay :value="data.matchRate" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
@@ -136,7 +136,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     fixed w-screen h-screen inset-0 flex backdrop-blur-5px z-100
   >
     <div absolute inset-0 bg-black:10 z--1 @click="currentRegex = null" />
-    <div bg-base shadow ma w-80vw h-80vh border="~ base rounded" of-auto>
+    <div bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
       <RegexDetail :info="currentRegex" :payload="payload" />
     </div>
   </div>

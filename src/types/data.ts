@@ -1,21 +1,6 @@
 import type { StackFrameLite } from 'error-stack-parser-es/lite'
 import type { RecordRegexCall } from './record'
 
-export interface RegexCallsSummary {
-  sum: number
-  avg: number
-  min: number
-  max: number
-  matchRate: number
-  countCalls: number
-  countMatches: number
-}
-
-export interface RegexObjectRepresentation {
-  pattern: string
-  flags: string
-}
-
 export interface RegexDoctorResult {
   /**
    * The number of regexes instances tracked
@@ -52,14 +37,20 @@ export interface RegexInfo {
    * Unique id
    */
   no: number
+
   /**
    * Serialized regex object
    */
-  regex: RegexObjectRepresentation
+  pattern: string
   /**
-   * Number of copies of the the exact same regex has been created
+   * Flags of the regex
    */
-  copies: number
+  flags: string
+  /**
+   * Is dynamic regex
+   */
+  dynamic?: boolean
+
   /**
    * Notable call infos
    */
@@ -67,31 +58,54 @@ export interface RegexInfo {
   /**
    * Array of stack traces
    */
-  traces?: (StackFrameLite[])[]
+  traces: StackFrameLite[][]
   /**
-   * Number of calls
+   * Summary of the time costed by the regex
+   */
+  sum: number
+  /**
+   * Min duration
+   */
+  min: number
+  /**
+   * Max duration
+   */
+  max: number
+
+  /**
+   * Total number of calls
    */
   calls: number
   /**
-   * Summary of all calls
+   * Total number of matches
    */
-  summary: RegexCallsSummary
+  matches: number
+  /**
+   * Match rate
+   */
+  copies: number
+
   /**
    * Files where the regex was created
    */
-  filesCreated?: string[]
+  filesCreated: string[]
   /**
    * Files where the regex was called
    */
-  filesCalled?: string[]
+  filesCalled: string[]
   /**
    * Package names where the regex was called or created
    */
-  packages?: string[]
+  packages: string[]
+
   /**
-   * Is dynamic regex
+   * Average of call duration
    */
-  dynamic?: boolean
+  avg: number
+  /**
+   * Percentage of matches
+   */
+  matchRate: number
 }
 
 export interface RegexCall extends Pick<RecordRegexCall, 'duration' | 'inputLength' | 'matched' | 'matchLength' | 'index' | 'groups'> {

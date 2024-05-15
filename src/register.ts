@@ -1,13 +1,15 @@
+/* eslint-disable no-console */
 import fs from 'node:fs'
 import process from 'node:process'
 import exitHook from 'exit-hook'
 import c from 'picocolors'
 import { RegexDoctor } from './doctor'
 
-const doctor = new RegexDoctor()
-doctor.start()
+console.log(`[regex-doctor] start tracking`)
 
+const doctor = new RegexDoctor()
 const cwd = process.cwd()
+doctor.start()
 
 exitHook(() => {
   doctor.stop()
@@ -16,6 +18,5 @@ exitHook(() => {
     stacktrace: true,
     cwd,
   }), null, 2))
-  // eslint-disable-next-line no-console
-  console.log(`[regex-doctor] output saved to ${c.blue('./.regex-doctor/output.json')}, run ${c.bold('npx regex-doctor view')} to view it in an interactive UI.`)
+  console.log(`[regex-doctor] output saved to ${c.blue('./.regex-doctor/output.json')}, run ${c.green(c.bold('npx regex-doctor view'))} to view it in an interactive UI.`)
 })

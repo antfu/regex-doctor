@@ -53,6 +53,6 @@ const color = computed(() => {
 
 <template>
   <code :class="color">
-    {{ number.toFixed(2) }}<span op50 text-sm>{{ unit }}</span>
+    {{ number.toFixed(2) }}<span op50 text-sm ml-3px>{{ unit }}</span>
   </code>
 </template>

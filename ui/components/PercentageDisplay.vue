@@ -24,7 +24,7 @@ const decimal = computed(() => Math.round((num.value - integer.value) * 100))
     <span v-if="props.parens" op50>(</span>
     <span>{{ integer }}</span>
     <span v-if="decimal" op75 text-sm>.{{ decimal }}</span>
-    <span text-sm op50>%</span>
+    <span text-sm op50 ml-2px>%</span>
     <span v-if="props.parens" op50>)</span>
   </span>
 </template>

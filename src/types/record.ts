@@ -1,5 +1,3 @@
-import type { RegexCallsSummary } from './data'
-
 export interface RecordRegexCall {
   duration: number
   inputLength: number
@@ -20,13 +18,4 @@ export interface RecordRegexInfo {
    */
   filepath?: string
   dynamic?: boolean
-}
-
-export interface MergedRecordRegexInfo {
-  regex: RegExp
-  dynamic?: boolean
-  calls: RecordRegexCall[]
-  copies: number
-  summary: RegexCallsSummary
-  filesCreated: string[]
 }

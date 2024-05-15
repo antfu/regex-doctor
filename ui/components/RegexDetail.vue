@@ -9,8 +9,8 @@ const props = defineProps<{
 
 function getRegex101Link(call?: RegexCall) {
   const query = new URLSearchParams()
-  query.set('regex', props.info.regex.pattern)
-  query.set('flags', props.info.regex.flags)
+  query.set('regex', props.info.pattern)
+  query.set('flags', props.info.flags)
   query.set('flavor', 'javascript')
   if (call?.input)
     query.set('testString', call?.input.map(i => typeof i === 'number' ? `\n--- ${i} chars truncated ---\n` : i.text).join(''))
@@ -39,11 +39,11 @@ const RenderInput = defineComponent({
 </script>
 
 <template>
-  <div flex="~ col">
-    <div p4 max-h-50 border="b base" of-auto>
+  <div flex="~ col" of-hidden h-full>
+    <div p4 max-h-50 border="b base">
       <a :href="getRegex101Link()" target="_blank" rel="noopener noreferrer">
         <ShikiInline
-          :code="`/${info.regex.pattern}/${info.regex.flags}`"
+          :code="`/${info.pattern}/${info.flags}`"
           lang="js"
           max-w-90vw
         />
@@ -51,7 +51,7 @@ const RenderInput = defineComponent({
     </div>
     <div p4 border="b base" grid="~ cols-5 gap-2">
       <DataField title="RegExp Length">
-        <NumberDisplay :number="info.regex.pattern.length" />
+        <NumberDisplay :number="info.pattern.length" />
       </DataField>
       <DataField title="Total calls">
         <NumberDisplay :number="info.calls" colorful="large" />
@@ -60,50 +60,55 @@ const RenderInput = defineComponent({
         <NumberDisplay :number="info.copies" colorful="small" />
       </DataField>
       <DataField title="Total time cost">
-        <DurationDisplay :ms="info.summary.sum" />
-        <PercentageDisplay v-if="payload" ml1 parens :value="info.summary.sum / payload.totalDuration" />
+        <DurationDisplay :ms="info.sum" />
+        <PercentageDisplay v-if="payload" ml1 parens :value="info.sum / payload.totalDuration" />
       </DataField>
       <DataField title="Match rate">
-        <PercentageDisplay :value="info.summary.matchRate" />
+        <PercentageDisplay :value="info.matchRate" />
       </DataField>
     </div>
-    <RegexSources
-      :info="info" :payload="payload"
-    />
-    <div v-if="info.callsInfos.length">
-      <div px4 py2 border="y base">
-        <span>Top {{ info.callsInfos.length }} Calls</span>
-      </div>
-      <div flex="~ col">
-        <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
-          <div w-35 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
-            <div i-ph-timer-duotone op50 />
-            <DurationDisplay :ms="call.duration" />
-
-            <div i-ph-text-align-left-duotone op50 />
-            <div op50>
-              <NumberDisplay :number="call.inputLength" /> chars
-            </div>
-
-            <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
-            <div :class="call.matched ? 'text-green' : 'op50'">
-              {{ call.matched ? 'Matched' : 'Not matched' }}
-            </div>
-
-            <template v-if="call.groups">
-              <div i-ph-brackets-round-duotone op50 />
-              <div op50>
-                {{ call.groups }} groups
-              </div>
-            </template>
-          </div>
-          <a
-            :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"
-            w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
-          >
-            <RenderInput :call="call" />
-          </a>
+    <div grid="~ cols-[2fr_1fr]" min-h-0>
+      <div v-if="info.callsInfos.length" of-auto>
+        <div px4 py2 border="b base">
+          <span>Top {{ info.callsInfos.length }} Costly Calls</span>
         </div>
+        <div flex="~ col" of-auto>
+          <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
+            <div w-35 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
+              <div i-ph-timer-duotone op50 />
+              <DurationDisplay :ms="call.duration" />
+
+              <div i-ph-text-align-left-duotone op50 />
+              <div op50>
+                <NumberDisplay :number="call.inputLength" /> chars
+              </div>
+
+              <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
+              <div :class="call.matched ? 'text-green' : 'op50'">
+                {{ call.matched ? 'Matched' : 'Not matched' }}
+              </div>
+
+              <template v-if="call.groups">
+                <div i-ph-brackets-round-duotone op50 />
+                <div op50>
+                  {{ call.groups }} groups
+                </div>
+              </template>
+            </div>
+            <a
+              :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"
+              w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
+              text-zinc
+            >
+              <RenderInput :call="call" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div border="l base">
+        <RegexSources
+          :info="info" :payload="payload"
+        />
       </div>
     </div>
   </div>
