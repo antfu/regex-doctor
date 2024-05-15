@@ -1,4 +1,4 @@
-import type { RegexCallsDurations } from './data'
+import type { RegexCallsSummary } from './data'
 
 export interface RecordRegexCall {
   duration: number
@@ -6,6 +6,7 @@ export interface RecordRegexCall {
   input?: string
   stack?: string
   matched?: boolean
+  matchLength?: number
   index?: number
   groups?: number
 }
@@ -26,6 +27,6 @@ export interface MergedRecordRegexInfo {
   dynamic?: boolean
   calls: RecordRegexCall[]
   copies: number
-  durations: RegexCallsDurations
+  summary: RegexCallsSummary
   filesCreated: string[]
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { RegexCall, RegexDoctorResult, RegexInfo } from 'regex-doctor'
+import { h } from 'vue'
 
 const props = defineProps<{
   info: RegexInfo
-  payload?: RegexDoctorResult
+  payload: RegexDoctorResult
 }>()
 
 function getRegex101Link(call?: RegexCall) {
@@ -12,9 +13,29 @@ function getRegex101Link(call?: RegexCall) {
   query.set('flags', props.info.regex.flags)
   query.set('flavor', 'javascript')
   if (call?.input)
-    query.set('testString', call?.input.map(i => typeof i === 'string' ? i : `...${i} chars`).join('\n'))
+    query.set('testString', call?.input.map(i => typeof i === 'number' ? `\n--- ${i} chars truncated ---\n` : i.text).join(''))
   return `https://regex101.com/?${query.toString()}`
 }
+
+const RenderInput = defineComponent({
+  props: {
+    call: {
+      type: Object as PropType<RegexCall>,
+      required: true,
+    },
+  },
+  setup(props) {
+    return () => h(
+      'pre',
+      {},
+      (props.call.input || []).map(i =>
+        typeof i === 'number'
+          ? h('div', { style: 'opacity: 0.2' }, `--- ${i} chars truncated ---`)
+          : h('span', { class: i.matched ? 'text-green bg-green:10 font-bold' : '' }, i.text),
+      ),
+    )
+  },
+})
 </script>
 
 <template>
@@ -28,44 +49,59 @@ function getRegex101Link(call?: RegexCall) {
         />
       </a>
     </div>
-    <div p4 border="b base" grid="~ cols-4 gap-2">
+    <div p4 border="b base" grid="~ cols-5 gap-2">
       <DataField title="RegExp Length">
         <NumberDisplay :number="info.regex.pattern.length" />
       </DataField>
       <DataField title="Total calls">
         <NumberDisplay :number="info.calls" colorful="large" />
       </DataField>
-      <DataField title="Total cost">
-        <DurationDisplay :ms="info.durations.sum" />
-        <span v-if="payload" op50 ml1>({{ (info.durations.sum / payload.totalDuration * 100).toFixed(2) }}%)</span>
+      <DataField title="Total copies">
+        <NumberDisplay :number="info.copies" colorful="small" />
+      </DataField>
+      <DataField title="Total time cost">
+        <DurationDisplay :ms="info.summary.sum" />
+        <PercentageDisplay v-if="payload" ml1 parens :value="info.summary.sum / payload.totalDuration" />
+      </DataField>
+      <DataField title="Match rate">
+        <PercentageDisplay :value="info.summary.matchRate" />
       </DataField>
     </div>
+    <RegexSources
+      :info="info" :payload="payload"
+    />
     <div v-if="info.callsInfos.length">
-      <div px4 py2 border="b base">
+      <div px4 py2 border="y base">
         <span>Top {{ info.callsInfos.length }} Calls</span>
       </div>
       <div flex="~ col">
         <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
-          <div w-30 flex="~ col none">
+          <div w-35 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
+            <div i-ph-timer-duotone op50 />
             <DurationDisplay :ms="call.duration" />
+
+            <div i-ph-text-align-left-duotone op50 />
             <div op50>
               <NumberDisplay :number="call.inputLength" /> chars
             </div>
-            <div>
-              <span :class=" call.matched ? 'text-green' : 'text-orange'">{{ call.matched ? 'matched' : 'not matched' }}</span>
+
+            <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
+            <div :class="call.matched ? 'text-green' : 'op50'">
+              {{ call.matched ? 'Matched' : 'Not matched' }}
             </div>
-            <div v-if="call.groups">
-              <span text-blue>{{ call.groups }} groups</span>
-            </div>
+
+            <template v-if="call.groups">
+              <div i-ph-brackets-round-duotone op50 />
+              <div op50>
+                {{ call.groups }} groups
+              </div>
+            </template>
           </div>
           <a
             :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"
-            w-full block bg-gray:5 px3 py1 border="~ base rounded" of-auto font-mono
+            w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
           >
-            <template v-for="i, idx of call.input" :key="idx">
-              <pre v-if="typeof i === 'string'" v-text="i" />
-              <div v-else op50 text-orange>(...{{ i }} char truncated)</div>
-            </template>
+            <RenderInput :call="call" />
           </a>
         </div>
       </div>

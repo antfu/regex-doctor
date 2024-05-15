@@ -2,7 +2,7 @@
 import type { RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { Dropdown, Tooltip } from 'floating-vue'
+import { Dropdown } from 'floating-vue'
 
 const props = defineProps<{
   payload: RegexDoctorResult
@@ -33,24 +33,13 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
-        <Tooltip>
-          <button flex h-full pl2 @click="currentRegex = data">
-            <ShikiInline
-              :code="`/${data.regex.pattern}/${data.regex.flags}`"
-              lang="js" text-gray:50
-              of-hidden max-w-150 text-ellipsis ws-nowrap mya
-            />
-          </button>
-          <template #popper>
-            <div p2>
-              <ShikiInline
-                :code="`/${data.regex.pattern}/${data.regex.flags}`"
-                lang="js"
-                max-w-90vw
-              />
-            </div>
-          </template>
-        </Tooltip>
+        <button flex h-full pl2 @click="currentRegex = data">
+          <ShikiInline
+            :code="`/${data.regex.pattern}/${data.regex.flags}`"
+            lang="js" text-gray:50
+            of-hidden max-w-150 text-ellipsis ws-nowrap mya
+          />
+        </button>
       </template>
     </Column>
     <Column field="calls" header="Calls" sortable>
@@ -69,35 +58,43 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="durations.sum" header="Total" sortable>
+    <Column field="summary.sum" header="Total" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.durations.sum" />
+        <DurationDisplay :ms="data.summary.sum" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="durations.avg" header="Avg" sortable>
+    <Column field="summary.avg" header="Avg" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.durations.avg" />
+        <DurationDisplay :ms="data.summary.avg" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="durations.max" header="Max" sortable>
+    <Column field="summary.max" header="Max" sortable>
       <template #body="{ data }">
         <button @click="currentRegex = data">
-          <DurationDisplay :ms="data.durations.max" />
+          <DurationDisplay :ms="data.summary.max" />
         </button>
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="durations.min" header="Min" sortable>
+    <Column field="summary.min" header="Min" sortable>
       <template #body="{ data }">
-        <DurationDisplay :ms="data.durations.min" />
+        <DurationDisplay :ms="data.summary.min" />
+      </template>
+      <template #sorticon="{ sorted, sortOrder }">
+        <SortIcon :sorted="sorted" :sort-order="sortOrder" />
+      </template>
+    </Column>
+    <Column field="summary.matchRate" header="Matches" sortable>
+      <template #body="{ data }">
+        <PercentageDisplay :value="data.summary.matchRate" />
       </template>
       <template #sorticon="{ sorted, sortOrder }">
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
@@ -120,38 +117,10 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
             </button>
             <template #popper>
               <div text-sm>
-                <div v-if="data.packages?.length" p3 border="b base" flex="~ col gap-2 items-start">
-                  <div op50 text-sm>
-                    Packages
-                  </div>
-                  <div flex="inline gap-2 wrap">
-                    <button v-for="name in data.packages" :key="name" @click="filters.package = name">
-                      <PackageNameDisplay :name="name" />
-                    </button>
-                  </div>
-                </div>
-                <div v-if="data.filesCreated?.length" p3 border="b base" flex="~ col gap-2 items-start">
-                  <div op50 text-sm>
-                    Created in:
-                  </div>
-                  <FileLink
-                    v-for="file of data.filesCreated"
-                    :key="file"
-                    :filepath="file"
-                    :cwd="payload.cwd"
-                  />
-                </div>
-                <div v-if="data.filesCalled?.length" p3 flex="~ col gap-2 items-start">
-                  <div op50 text-sm>
-                    Used in:
-                  </div>
-                  <FileLink
-                    v-for="file of data.filesCalled"
-                    :key="file"
-                    :filepath="file"
-                    :cwd="payload.cwd"
-                  />
-                </div>
+                <RegexSources
+                  :info="data" :payload="payload"
+                  @select-package="pkg => filters.package = pkg"
+                />
               </div>
             </template>
           </Dropdown>

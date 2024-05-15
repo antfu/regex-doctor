@@ -61,6 +61,7 @@ export function hijack() {
         call.matched = true
         call.index = result.index
         call.groups = result.length - 1
+        call.matchLength = result[0].length
       }
 
       Object.freeze(call)

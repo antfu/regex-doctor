@@ -1,7 +1,7 @@
 import type { StackFrameLite } from 'error-stack-parser-es/lite'
 import { parseStack } from 'error-stack-parser-es/lite'
 import { getTrace } from 'trace-record'
-import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCall, RegexCallsDurations, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexDoctorResult, RegexInfo } from './types'
+import type { MergedRecordRegexInfo, RecordRegexInfo, RegexCall, RegexCallsSummary, RegexDoctorDumpFiltersOptions, RegexDoctorDumpOptions, RegexDoctorResult, RegexInfo } from './types'
 import { extractPackagePath, normalizeFilepath } from './shared/path'
 import type { RegexDoctor } from './doctor'
 
@@ -40,7 +40,7 @@ export function dump(
         regex: info.regex,
         calls: [],
         copies: 0,
-        durations: undefined!,
+        summary: undefined!,
         filesCreated: [],
         dynamic: info.dynamic,
       }
@@ -63,10 +63,10 @@ export function dump(
 
   let infos = Array.from(uniqueMap.values())
   infos.forEach((info) => {
-    info.durations = getDurations(info)
-    totalExecution += info.durations.sum
+    info.summary = getDurations(info)
+    totalExecution += info.summary.sum
   })
-  infos.sort((a, b) => b.durations!.sum - a.durations!.sum)
+  infos.sort((a, b) => b.summary!.sum - a.summary!.sum)
 
   infos = infos.filter((info, idx) => {
     if (idx < filters.top)
@@ -75,11 +75,11 @@ export function dump(
       return true
     if (info.copies >= filters.minCopies)
       return true
-    if (info.durations.sum >= filters.minDurationSum)
+    if (info.summary.sum >= filters.minDurationSum)
       return true
-    if (info.durations.avg >= filters.minDurationAvg)
+    if (info.summary.avg >= filters.minDurationAvg)
       return true
-    if (info.durations.max >= filters.minDurationMax)
+    if (info.summary.max >= filters.minDurationMax)
       return true
     return false
   })
@@ -111,21 +111,30 @@ export function dump(
       if (call.input != null) {
         input = []
         if (call.input.length <= limitInputLength) {
-          input.push(call.input)
+          input.push({ text: call.input })
         }
         else if (call.index != null) {
-          const index = Math.max(0, Math.round(call.index - limitInputLength * 0.3))
-          if (index > 0)
-            input.push(index)
-          const snippet = call.input.slice(index, index + limitInputLength)
-          input.push(snippet)
-          const rest = call.inputLength - index - snippet.length
+          const preLength = Math.round(limitInputLength * 0.3)
+          const startIndex = Math.max(0, Math.round(call.index - preLength))
+          const endIndex = Math.min(call.input.length, startIndex + limitInputLength)
+          if (startIndex > 0)
+            input.push(startIndex)
+          const startText = call.input.slice(startIndex, call.index)
+          const matchEndIndex = call.index + (call.matchLength || 0)
+          const matchedText = call.input.slice(call.index, matchEndIndex)
+          const endText = call.input.slice(matchEndIndex, endIndex)
+          if (startText)
+            input.push({ text: startText })
+          input.push({ text: matchedText, matched: true })
+          if (endText)
+            input.push({ text: endText })
+          const rest = call.inputLength - endIndex
           if (rest > 0)
             input.push(rest)
         }
         else {
           const snippet = call.input.slice(0, limitInputLength)
-          input.push(snippet)
+          input.push({ text: snippet })
           const rest = call.inputLength - snippet.length
           if (rest > 0)
             input.push(rest)
@@ -139,6 +148,7 @@ export function dump(
         matched: call.matched,
         index: call.index,
         groups: call.groups,
+        matchLength: call.matchLength,
       }
     })
 
@@ -167,7 +177,7 @@ export function dump(
       traces: Array.from(traces.values())
         .sort((a, b) => a.idx - b.idx)
         .map(({ trace }) => trace),
-      durations: info.durations || getDurations(info),
+      summary: info.summary || getDurations(info),
       filesCalled,
       filesCreated: info.filesCreated,
       dynamic: info.dynamic,
@@ -185,7 +195,7 @@ export function dump(
   }
 }
 
-function getDurations(info: RecordRegexInfo): RegexCallsDurations {
+function getDurations(info: RecordRegexInfo): RegexCallsSummary {
   let sum = 0
   let min = Number.POSITIVE_INFINITY
   let max = Number.NEGATIVE_INFINITY
@@ -197,8 +207,12 @@ function getDurations(info: RecordRegexInfo): RegexCallsDurations {
       max = Math.max(max, call.duration)
     })
 
+  const countMatches = info.calls.filter(call => call.matched).length
+
   return {
-    count: info.calls.length,
+    countCalls: info.calls.length,
+    countMatches,
+    matchRate: countMatches / info.calls.length,
     sum,
     avg: sum / info.calls.length,
     min,

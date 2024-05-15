@@ -20,7 +20,7 @@ const payload = Object.freeze(await $fetch('/api/payload') as RegexDoctorResult)
     </DataField>
     <DataField title="Total regex execution time">
       <DurationDisplay :ms="payload.totalExecution" :colorful="false" />
-      <span op50 ml1>({{ (payload.totalExecution / payload.totalDuration * 100).toFixed(2) }}%)</span>
+      <PercentageDisplay ml1 parens :value="payload.totalExecution / payload.totalDuration" />
     </DataField>
     <DataField title="Total time of the process">
       <DurationDisplay :ms="payload.totalDuration" :colorful="false" />
