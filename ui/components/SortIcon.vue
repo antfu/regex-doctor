@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div v-if="!sorted" i-ph-arrows-down-up-duotone />
-  <div v-else-if="sortOrder === 1" i-ph-sort-descending-duotone />
-  <div v-else i-ph-sort-ascending-duotone />
+  <div v-if="!sorted" i-ph-arrows-down-up-duotone mr--1 />
+  <div v-else-if="sortOrder === 1" i-ph-sort-descending-duotone mr--1 />
+  <div v-else i-ph-sort-ascending-duotone mr--1 />
 </template>

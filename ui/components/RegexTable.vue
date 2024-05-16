@@ -58,6 +58,14 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
+    <Column field="groups" header="Groups" sortable>
+      <template #body="{ data }">
+        <NumberDisplay :number="data.groups" colorful="small" />
+      </template>
+      <template #sorticon="{ sorted, sortOrder }">
+        <SortIcon :sorted="sorted" :sort-order="sortOrder" />
+      </template>
+    </Column>
     <Column field="sum" header="Total" sortable>
       <template #body="{ data }">
         <DurationDisplay :ms="data.sum" />
@@ -100,14 +108,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
-    <Column field="matchRate" header="Matches" sortable>
-      <template #body="{ data }">
-        <PercentageDisplay :value="data.matchRate" />
-      </template>
-      <template #sorticon="{ sorted, sortOrder }">
-        <SortIcon :sorted="sorted" :sort-order="sortOrder" />
-      </template>
-    </Column>
+
     <Column field="files" header="Used in" sortable header-class="pr-4">
       <template #body="{ data }">
         <div flex="~ gap-1 items-center justify-end">
@@ -124,9 +125,10 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
               {{ data.filesCalled?.length }}
             </button>
             <template #popper>
-              <div text-sm>
+              <div text-sm text-left>
                 <RegexSources
-                  :info="data" :payload="payload"
+                  :info="data"
+                  :payload="payload"
                   @select-package="pkg => filters.package = pkg"
                 />
               </div>

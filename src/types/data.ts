@@ -91,6 +91,10 @@ export interface RegexInfo {
    * Match rate
    */
   copies: number
+  /**
+   * Number of match groups
+   */
+  groups: number
 
   /**
    * Files where the regex was created

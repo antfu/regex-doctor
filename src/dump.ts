@@ -51,6 +51,7 @@ export function dump(
       callsInfos: [],
       traces: [],
       sum: 0,
+      groups: 0,
       min: Number.POSITIVE_INFINITY,
       max: 0,
       inputLengthSum: 0,
@@ -75,6 +76,9 @@ export function dump(
 
       info.inputLengthSum += call.inputLength
       info.sum += d
+      if (call.groups)
+        info.groups = Math.max(info.groups, call.groups)
+
       if (d < info.min)
         info.min = d
       if (d > info.max)

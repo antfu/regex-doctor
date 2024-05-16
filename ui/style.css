@@ -35,11 +35,7 @@ html:not(.dark) .shiki span {
 }
 
 .data-table th {
-  --uno: py2 text-sm op50 font-normal;
-}
-
-.data-table th svg {
-  --uno: 'op50 text-sm';
+  --uno: p2 text-sm op50 font-normal;
 }
 
 .data-table tbody tr {
