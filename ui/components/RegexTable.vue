@@ -33,7 +33,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
-        <button flex h-full pl2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
+        <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
           <ShikiInline
             :code="`/${data.pattern}/${data.flags}`"
             lang="js" text-gray:50

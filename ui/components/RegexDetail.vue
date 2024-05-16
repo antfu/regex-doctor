@@ -39,8 +39,8 @@ const RenderInput = defineComponent({
 </script>
 
 <template>
-  <div flex="~ col" of-hidden h-full>
-    <div p4 max-h-50 border="b base">
+  <div grid="~ rows-[max-content_max-content_1fr]" of-hidden h-full>
+    <div p4 max-h-50 border="b base" of-auto>
       <a :href="getRegex101Link()" target="_blank" rel="noopener noreferrer">
         <ShikiInline
           :code="`/${info.pattern}/${info.flags}`"

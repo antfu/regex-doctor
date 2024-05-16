@@ -23,7 +23,7 @@ export function dump(
   const {
     limitCalls = 5,
     limitInputLength = 500,
-    // stacktrace = true,
+    stacktrace = false,
   } = options
 
   const filters = {
@@ -146,14 +146,21 @@ export function dump(
             const trace = parseStacktrace(callRecord.stack)
             if (trace && trace[0]) {
               const file = `${normalizeFilepath(trace[0].file!)}:${trace[0].line!}:${trace[0].col!}`
-              const index = info.traces?.length
-              traceIndex.set(callRecord.stack, index)
-              call.trace = index
-              info.traces.push(trace)
               info.filesCalled.push(file)
               const r = extractPackagePath(file)
               if (r.package && !info.packages.includes(r.package))
                 info.packages.push(r.package)
+
+              if (stacktrace) {
+                const index = info.traces?.length
+                traceIndex.set(callRecord.stack, index)
+                call.trace = index
+                // Remove raw stacktrace, reduce file size
+                trace.forEach((frame) => {
+                  delete frame.raw
+                })
+                info.traces.push(trace)
+              }
             }
           }
         }

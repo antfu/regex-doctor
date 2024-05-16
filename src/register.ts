@@ -15,7 +15,6 @@ exitHook(() => {
   doctor.stop()
   fs.mkdirSync('./.regex-doctor', { recursive: true })
   fs.writeFileSync('./.regex-doctor/output.json', JSON.stringify(doctor.dump({
-    stacktrace: true,
     cwd,
   }), null, 2))
   console.log(`[regex-doctor] output saved to ${c.blue('./.regex-doctor/output.json')}, run ${c.green(c.bold('npx regex-doctor view'))} to view it in an interactive UI.`)
