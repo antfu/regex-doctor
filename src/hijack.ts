@@ -48,13 +48,15 @@ export function hijack() {
       const result = _exec.call(this, string)
       const end = performance.now()
       const duration = end - start
+      const inputLength = string.length
       const call: RecordRegexCall = {
         stack: duration > 0.001
           ? new Error().stack
           : undefined,
         duration,
+        dpk: duration * 1000 / inputLength,
         input: string,
-        inputLength: string.length,
+        inputLength,
       }
 
       if (result) {

@@ -1,5 +1,9 @@
 export interface RecordRegexCall {
   duration: number
+  /**
+   * Duration per 1,000 characters
+   */
+  dpk: number
   inputLength: number
   input?: string
   stack?: string

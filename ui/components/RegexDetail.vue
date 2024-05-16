@@ -74,13 +74,18 @@ const RenderInput = defineComponent({
         </div>
         <div flex="~ col" of-auto>
           <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
-            <div w-35 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
+            <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
               <div i-ph-timer-duotone op50 />
               <DurationDisplay :ms="call.duration" />
 
               <div i-ph-text-align-left-duotone op50 />
               <div op50>
                 <NumberDisplay :number="call.inputLength" /> chars
+              </div>
+
+              <div i-ph-speedometer-duotone op50 />
+              <div>
+                <DurationDisplay :ms="call.dpk" /> <span op50 text-sm>/ 1K chars</span>
               </div>
 
               <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
@@ -105,7 +110,7 @@ const RenderInput = defineComponent({
           </div>
         </div>
       </div>
-      <div border="l base">
+      <div border="l base" of-auto>
         <RegexSources
           :info="info" :payload="payload"
         />

@@ -92,6 +92,14 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
         <SortIcon :sorted="sorted" :sort-order="sortOrder" />
       </template>
     </Column>
+    <Column field="dpk" header="DPK" sortable>
+      <template #body="{ data }">
+        <DurationDisplay :ms="data.dpk" />
+      </template>
+      <template #sorticon="{ sorted, sortOrder }">
+        <SortIcon :sorted="sorted" :sort-order="sortOrder" />
+      </template>
+    </Column>
     <Column field="matchRate" header="Matches" sortable>
       <template #body="{ data }">
         <PercentageDisplay :value="data.matchRate" />

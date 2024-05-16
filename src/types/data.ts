@@ -71,7 +71,14 @@ export interface RegexInfo {
    * Max duration
    */
   max: number
-
+  /**
+   * Total input length
+   */
+  inputLengthSum: number
+  /**
+   * Average duration per 1,000 characters
+   */
+  dpk: number
   /**
    * Total number of calls
    */
@@ -108,7 +115,7 @@ export interface RegexInfo {
   matchRate: number
 }
 
-export interface RegexCall extends Pick<RecordRegexCall, 'duration' | 'inputLength' | 'matched' | 'matchLength' | 'index' | 'groups'> {
+export interface RegexCall extends Pick<RecordRegexCall, 'duration' | 'inputLength' | 'matched' | 'matchLength' | 'index' | 'groups' | 'dpk'> {
   /**
    * Input string, number stands for the truncated length
    */

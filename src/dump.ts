@@ -53,7 +53,9 @@ export function dump(
       sum: 0,
       min: Number.POSITIVE_INFINITY,
       max: 0,
+      inputLengthSum: 0,
 
+      dpk: 0,
       matchRate: 0,
       avg: 0,
     }
@@ -71,6 +73,7 @@ export function dump(
       const d = call.duration
       totalExecution += d
 
+      info.inputLengthSum += call.inputLength
       info.sum += d
       if (d < info.min)
         info.min = d
@@ -107,6 +110,7 @@ export function dump(
   for (const info of infos) {
     info.avg = info.sum / info.calls
     info.matchRate = info.matches / info.calls
+    info.dpk = info.sum * 1000 / info.inputLengthSum
 
     const records = recordMap.get(info)!
     const traceIndex = new Map<string, number>()
@@ -146,7 +150,8 @@ export function dump(
             const trace = parseStacktrace(callRecord.stack)
             if (trace && trace[0]) {
               const file = `${normalizeFilepath(trace[0].file!)}:${trace[0].line!}:${trace[0].col!}`
-              info.filesCalled.push(file)
+              if (!info.filesCalled.includes(file))
+                info.filesCalled.push(file)
               const r = extractPackagePath(file)
               if (r.package && !info.packages.includes(r.package))
                 info.packages.push(r.package)
@@ -210,6 +215,7 @@ export function dump(
       duration: call.duration,
       inputLength: call.inputLength,
       input,
+      dpk: call.dpk,
       matched: call.matched,
       index: call.index,
       groups: call.groups,
