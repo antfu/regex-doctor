@@ -109,7 +109,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
       </template>
     </Column>
 
-    <Column field="files" header="Used in" sortable header-class="pr-4">
+    <Column field="filesCalled.length" header="Used in" sortable header-class="pr-4">
       <template #body="{ data }">
         <div flex="~ gap-1 items-center justify-end">
           <Dropdown>
