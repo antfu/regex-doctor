@@ -9,7 +9,7 @@ export interface RegexDoctorDumpOptions {
 
   /**
    * Limit of the numbers of calls to dump. Sorted by duration cost.
-   * @default 5
+   * @default 10
    */
   limitCalls?: number
 

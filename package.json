@@ -78,6 +78,7 @@
     "bumpp": "^9.4.1",
     "eslint": "^9.2.0",
     "esno": "^4.7.0",
+    "js-base64": "^3.7.7",
     "lint-staged": "^15.2.2",
     "pnpm": "^9.1.1",
     "regex-doctor": "workspace:*",

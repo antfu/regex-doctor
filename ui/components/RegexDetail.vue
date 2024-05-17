@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RegexCall, RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import { h } from 'vue'
+import { decode, encode } from 'js-base64'
 
 const props = defineProps<{
   info: RegexInfo
@@ -11,25 +12,40 @@ function getInputText(call: RegexCall) {
   return call.input?.map(i => typeof i === 'number' ? `\n--- ${i} chars truncated ---\n` : i.text).join('') || ''
 }
 
-function getPerfLink(calls: RegexCall[] = props.info.callsInfos) {
+function getBenchmarkLink(calls: RegexCall[] = props.info.callsInfos) {
   const payload = {
-    title: 'Performance Comparison from RegexDoctor',
-    before: [
-      '// Click "Run Tests" to start',
-      `const regex = /${props.info.pattern}/${props.info.flags}`,
-      `const inputs = [`,
-      ...calls.flatMap((call, idx) => [
-        `  // Input ${idx}`,
-        `  ${JSON.stringify(getInputText(call))},`,
-      ]),
-      `]`,
-    ].join('\n'),
-    tests: calls.map((call, idx) => ({
+    config: {
+      name: 'Performance Comparison from RegexDoctor',
+      parallel: true,
+      globalTestConfig: {
+        dependencies: [],
+      },
+      dataCode: [
+        '// Click "Run Tests" to start',
+        `const regex = /${props.info.pattern}/${props.info.flags}`,
+        `const inputs = [`,
+        ...calls.flatMap((call, idx) => [
+          `  // Input ${idx}`,
+          `  ${JSON.stringify(getInputText(call))},`,
+        ]),
+        `]`,
+        'return { regex, inputs }',
+      ].join('\n'),
+    },
+    cases: calls.map((call, idx) => ({
       name: `Input ${idx}`,
-      code: `regex.test(inputs[${idx}])`,
+      code: `DATA.regex.test(DATA.inputs[${idx}])`,
+      dependencies: [],
     })),
   }
-  return `https://perf.link/#${encodeURIComponent(btoa(JSON.stringify(payload)))}`
+  // TODO: pref.link doesn't support unicode yet.
+  try {
+    return `https://jsbenchmark.com/#${encode((JSON.stringify(payload)), true)}`
+  }
+  catch (e) {
+    console.error(e)
+    return ''
+  }
 }
 
 function getRegex101Link(call?: RegexCall) {
@@ -94,9 +110,9 @@ const RenderInput = defineComponent({
       <DataField title="Duration per 1k chars">
         <PercentageDisplay :value="info.dpk" />
       </DataField>
-      <DataField title="Performance Comparison">
-        <a :href="getPerfLink()" target="_blank" rel="noopener noreferrer">
-          <span>pref.link</span>
+      <DataField v-if="getBenchmarkLink()" title="Performance Comparison">
+        <a :href="getBenchmarkLink()" target="_blank" rel="noopener noreferrer" hover:underline>
+          <span>jsbenchmark.com</span>
         </a>
       </DataField>
     </div>
@@ -132,6 +148,17 @@ const RenderInput = defineComponent({
                   {{ call.groups }} groups
                 </div>
               </template>
+
+              <div i-ph-list-magnifying-glass-duotone op50 />
+              <div>
+                <a
+                  :href="getRegex101Link(call)"
+                  target="_blank" rel="noopener noreferrer"
+                  op50 hover:underline hover:op100
+                >
+                  Test on Regex101
+                </a>
+              </div>
             </div>
             <a
               :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"

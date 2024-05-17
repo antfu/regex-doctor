@@ -21,7 +21,7 @@ export function dump(
 ): RegexDoctorResult {
   const map = doctor.map
   const {
-    limitCalls = 5,
+    limitCalls = 10,
     limitInputLength = 500,
     stacktrace = false,
   } = options
@@ -141,7 +141,8 @@ export function dump(
 
       // Covert call records
       for (const callRecord of record.calls) {
-        if (callRecord.duration < info.avg)
+        // Ignore calls with duration less than 60% of average
+        if (callRecord.duration < info.avg * 0.6)
           continue
 
         const call = convertCallRecord(callRecord)
