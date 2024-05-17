@@ -7,13 +7,38 @@ const props = defineProps<{
   payload: RegexDoctorResult
 }>()
 
+function getInputText(call: RegexCall) {
+  return call.input?.map(i => typeof i === 'number' ? `\n--- ${i} chars truncated ---\n` : i.text).join('') || ''
+}
+
+function getPerfLink(calls: RegexCall[] = props.info.callsInfos) {
+  const payload = {
+    title: 'Performance Comparison from RegexDoctor',
+    before: [
+      '// Click "Run Tests" to start',
+      `const regex = /${props.info.pattern}/${props.info.flags}`,
+      `const inputs = [`,
+      ...calls.flatMap((call, idx) => [
+        `  // Input ${idx}`,
+        `  ${JSON.stringify(getInputText(call))},`,
+      ]),
+      `]`,
+    ].join('\n'),
+    tests: calls.map((call, idx) => ({
+      name: `Input ${idx}`,
+      code: `regex.test(inputs[${idx}])`,
+    })),
+  }
+  return `https://perf.link/#${encodeURIComponent(btoa(JSON.stringify(payload)))}`
+}
+
 function getRegex101Link(call?: RegexCall) {
   const query = new URLSearchParams()
   query.set('regex', props.info.pattern)
   query.set('flags', props.info.flags)
   query.set('flavor', 'javascript')
   if (call?.input)
-    query.set('testString', call?.input.map(i => typeof i === 'number' ? `\n--- ${i} chars truncated ---\n` : i.text).join(''))
+    query.set('testString', getInputText(call))
   return `https://regex101.com/?${query.toString()}`
 }
 
@@ -49,7 +74,7 @@ const RenderInput = defineComponent({
         />
       </a>
     </div>
-    <div p4 border="b base" grid="~ cols-5 gap-2">
+    <div p4 border="b base" grid="~ cols-7 gap-2">
       <DataField title="RegExp Length">
         <NumberDisplay :number="info.pattern.length" />
       </DataField>
@@ -65,6 +90,14 @@ const RenderInput = defineComponent({
       </DataField>
       <DataField title="Match rate">
         <PercentageDisplay :value="info.matchRate" />
+      </DataField>
+      <DataField title="Duration per 1k chars">
+        <PercentageDisplay :value="info.dpk" />
+      </DataField>
+      <DataField title="Performance Comparison">
+        <a :href="getPerfLink()" target="_blank" rel="noopener noreferrer">
+          <span>pref.link</span>
+        </a>
       </DataField>
     </div>
     <div grid="~ cols-[2fr_1fr]" min-h-0>
