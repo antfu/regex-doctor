@@ -25,6 +25,8 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
 </script>
 
 <template>
+  <FilterData />
+
   <DataTable :value="filtered.slice(0, 100)" :default-sort-order="-1" data-key="no" table-class="w-full text-right data-table">
     <Column field="dynamic" header="Dynamic" header-class="pl4">
       <template #body="{ data }">
