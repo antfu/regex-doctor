@@ -7,7 +7,7 @@ import type { RegexDoctor } from './doctor'
 export const listeners = new Set<RegexDoctor>()
 let hijacked = false
 
-function noop() {}
+function noop() { }
 
 let _restore = noop
 
@@ -38,24 +38,24 @@ export function hijack() {
   // To avoid infinite recursion
   let isTracing = true
   const _exec = RegExp.prototype.exec
-  RegExp.prototype.exec = function (string) {
+  function myExec(this: RegExp, s: string) {
     if (!listeners.size || !isTracing)
-      return _exec.call(this, string)
+      return _exec.call(this, s)
 
     isTracing = false
     try {
       const start = performance.now()
-      const result = _exec.call(this, string)
+      const result = _exec.call(this, s)
       const end = performance.now()
       const duration = end - start
-      const inputLength = string.length
+      const inputLength = s.length
       const call: RecordRegexCall = {
         stack: duration > 0.001
           ? new Error().stack
           : undefined,
         duration,
         dpk: duration * 1000 / inputLength,
-        input: string,
+        input: s,
         inputLength,
       }
 
@@ -86,6 +86,12 @@ export function hijack() {
       isTracing = true
     }
   }
+
+  RegExp.prototype.exec = myExec;
+
+  // @ts-expect-error  @see:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto
+  // eslint-disable-next-line no-proto, no-restricted-properties
+  /\./.__proto__.exec = myExec
 
   // @ts-expect-error - hijacking
   globalThis.RegExp = MyRegExp
