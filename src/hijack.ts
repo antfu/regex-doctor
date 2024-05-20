@@ -37,7 +37,12 @@ export function hijack() {
     return
   // To avoid infinite recursion
   let isTracing = true
+  const regex_normal_expression = /1/
   const _exec = RegExp.prototype.exec
+
+  // @ts-expect-error  @see:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto
+  // eslint-disable-next-line no-proto, no-restricted-properties
+  const _exec_normal_expression = regex_normal_expression.__proto__.exec
   function myExec(this: RegExp, s: string) {
     if (!listeners.size || !isTracing)
       return _exec.call(this, s)
@@ -87,11 +92,11 @@ export function hijack() {
     }
   }
 
-  RegExp.prototype.exec = myExec;
+  RegExp.prototype.exec = myExec
 
   // @ts-expect-error  @see:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto
   // eslint-disable-next-line no-proto, no-restricted-properties
-  /\./.__proto__.exec = myExec
+  regex_normal_expression.__proto__.exec = myExec
 
   // @ts-expect-error - hijacking
   globalThis.RegExp = MyRegExp
@@ -99,6 +104,10 @@ export function hijack() {
   _restore = function () {
     globalThis.RegExp = RegExp
     RegExp.prototype.exec = _exec
+
+    // @ts-expect-error  @see:https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto
+    // eslint-disable-next-line no-proto, no-restricted-properties
+    regex_normal_expression.__proto__.exec = _exec_normal_expression
     hijacked = false
     _restore = noop
   }
