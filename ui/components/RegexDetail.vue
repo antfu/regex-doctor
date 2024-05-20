@@ -122,37 +122,37 @@ const RenderInput = defineComponent({
           <span>Top {{ info.callsInfos.length }} Costly Calls</span>
         </div>
         <div flex="~ col" of-auto>
-          <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
+          <div v-for="_call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
             <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
               <div i-ph-timer-duotone op50 />
-              <DurationDisplay :ms="call.duration" />
+              <DurationDisplay :ms="_call.duration" />
 
               <div i-ph-text-align-left-duotone op50 />
               <div op50>
-                <NumberDisplay :number="call.inputLength" /> chars
+                <NumberDisplay :number="_call.inputLength" /> chars
               </div>
 
               <div i-ph-speedometer-duotone op50 />
               <div>
-                <DurationDisplay :ms="call.dpk" /> <span op50 text-sm>/ 1K chars</span>
+                <DurationDisplay :ms="_call.dpk" /> <span op50 text-sm>/ 1K chars</span>
               </div>
 
-              <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
-              <div :class="call.matched ? 'text-green' : 'op50'">
-                {{ call.matched ? 'Matched' : 'Not matched' }}
+              <div :class="_call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
+              <div :class="_call.matched ? 'text-green' : 'op50'">
+                {{ _call.matched ? 'Matched' : 'Not matched' }}
               </div>
 
-              <template v-if="call.groups">
+              <template v-if="_call.groups">
                 <div i-ph-brackets-round-duotone op50 />
                 <div op50>
-                  {{ call.groups }} groups
+                  {{ _call.groups }} groups
                 </div>
               </template>
 
               <div i-ph-list-magnifying-glass-duotone op50 />
               <div>
                 <a
-                  :href="getRegex101Link(call)"
+                  :href="getRegex101Link(_call)"
                   target="_blank" rel="noopener noreferrer"
                   op50 hover:underline hover:op100
                 >
@@ -161,11 +161,11 @@ const RenderInput = defineComponent({
               </div>
             </div>
             <a
-              :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"
+              :href="getRegex101Link(_call)" target="_blank" rel="noopener noreferrer"
               w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
               text-zinc
             >
-              <RenderInput :call="call" />
+              <RenderInput :call="_call" />
             </a>
           </div>
         </div>
