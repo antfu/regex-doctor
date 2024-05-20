@@ -3,6 +3,7 @@ import type { RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { Dropdown } from 'floating-vue'
+import Dialog from 'primevue/dialog'
 
 const props = defineProps<{
   payload: RegexDoctorResult
@@ -22,6 +23,11 @@ const filtered = computed(() => {
 })
 
 const currentRegex = shallowRef<RegexInfo | null>(null)
+const visible = ref(false)
+function showCurrentRegex(info: RegexInfo) {
+  currentRegex.value = info
+  visible.value = true
+}
 </script>
 
 <template>
@@ -33,7 +39,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #body="{ data }">
-        <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
+        <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="showCurrentRegex(data)">
           <ShikiInline
             :code="`/${data.pattern}/${data.flags}`"
             lang="js" text-gray:50
@@ -84,7 +90,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
     </Column>
     <Column field="max" header="Max" sortable>
       <template #body="{ data }">
-        <button @click="currentRegex = data">
+        <button @click="showCurrentRegex(data)">
           <DurationDisplay :ms="data.max" />
         </button>
       </template>
@@ -141,13 +147,12 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
       </template>
     </Column>
   </DataTable>
-  <div
-    v-if="currentRegex"
-    fixed w-screen h-screen inset-0 flex backdrop-blur-5px z-100
+  <Dialog
+    v-model:visible="visible" :show-header="false"
+    maximizable modal dismissable-mask
   >
-    <div absolute inset-0 bg-black:10 z--1 @click="currentRegex = null" />
-    <div bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
+    <div v-if="currentRegex" bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
       <RegexDetail :info="currentRegex" :payload="payload" />
     </div>
-  </div>
+  </Dialog>
 </template>
