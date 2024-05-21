@@ -3,6 +3,7 @@ import type { RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { Dropdown } from 'floating-vue'
+import type { ConditionGetter } from './FilterData.vue'
 
 const props = defineProps<{
   payload: RegexDoctorResult
@@ -12,21 +13,28 @@ const filters = reactive({
   package: '',
 })
 
+const filterConditions = shallowRef<ConditionGetter[]>([])
+
 const filtered = computed(() => {
   let list = props.payload.regexInfos
 
   if (filters.package)
     list = list.filter(item => item.packages?.includes(filters.package))
 
+  // apply all filters
+  list = list.filter(item => filterConditions.value.every(condition => condition(item)))
+
   return list
 })
 
 const currentRegex = shallowRef<RegexInfo | null>(null)
+
+function onFilterConfirm(conditions: ConditionGetter[]) {
+  filterConditions.value = conditions
+}
 </script>
 
 <template>
-  <FilterData />
-
   <DataTable :value="filtered.slice(0, 100)" :default-sort-order="-1" data-key="no" table-class="w-full text-right data-table">
     <Column field="dynamic" header="Dynamic" header-class="pl4">
       <template #body="{ data }">
@@ -34,6 +42,10 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
       </template>
     </Column>
     <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
+      <template #header>
+        <FilterData @filter="onFilterConfirm" />
+      </template>
+
       <template #body="{ data }">
         <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
           <ShikiInline
