@@ -53,7 +53,7 @@
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm -r typecheck",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
