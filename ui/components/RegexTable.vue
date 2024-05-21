@@ -121,7 +121,7 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
                 v-if="data.filesCreated?.length" i-ph-file-code-duotone text-purple
                 title="Regex creation source"
               />
-              <div op50 i-ph-files-duotone />
+              <div op50 i-ph-files-duotone flex-shrink-0 />
               {{ data.filesCalled?.length }}
             </button>
             <template #popper>
