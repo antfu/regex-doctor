@@ -150,6 +150,11 @@ function showCurrentRegex(info: RegexInfo) {
   <Dialog
     v-model:visible="visible" :show-header="false"
     maximizable modal dismissable-mask
+    :pt="{
+      mask: {
+        style: 'backdrop-filter: blur(5px)',
+      },
+    }"
   >
     <div v-if="currentRegex" bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
       <RegexDetail :info="currentRegex" :payload="payload" />
