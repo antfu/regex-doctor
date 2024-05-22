@@ -122,6 +122,7 @@ const RenderInput = defineComponent({
           <span>Top {{ info.callsInfos.length }} Costly Calls</span>
         </div>
         <div flex="~ col" of-auto>
+          <!-- eslint-disable-next-line vue/no-template-shadow -->
           <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
             <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
               <div i-ph-timer-duotone op50 />
