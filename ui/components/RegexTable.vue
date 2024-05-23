@@ -31,7 +31,7 @@ function showCurrentRegex(info: RegexInfo) {
 </script>
 
 <template>
-  <DataTable :value="filtered.slice(0, 100)" :default-sort-order="-1" data-key="no" table-class="w-full text-right data-table">
+  <DataTable class="regex-table" :value="filtered" scrollable scroll-height="flex" :virtual-scroller-options="{ itemSize: 36 }" :default-sort-order="-1" data-key="no" table-class="w-full text-right data-table">
     <Column field="dynamic" header="Dynamic" header-class="pl4">
       <template #body="{ data }">
         <PackageNameDisplay v-if="data.dynamic" name="new" />
@@ -115,7 +115,7 @@ function showCurrentRegex(info: RegexInfo) {
       </template>
     </Column>
 
-    <Column field="filesCalled.length" header="Used in" sortable header-class="pr-4">
+    <Column field="filesCalled.length" header="Used in" sortable header-class="pr-7!">
       <template #body="{ data }">
         <div flex="~ gap-1 items-center justify-end">
           <Dropdown>
@@ -161,3 +161,21 @@ function showCurrentRegex(info: RegexInfo) {
     </div>
   </Dialog>
 </template>
+
+<style>
+.regex-table,
+.regex-table .p-datatable-wrapper {
+  --uno: h-full;
+}
+.p-virtualscroller {
+  position: relative;
+  overflow: auto;
+  contain: strict;
+  transform: translateZ(0);
+  will-change: scroll-position;
+  outline: 0 none;
+}
+.p-datatable-scrollable-table > .p-datatable-thead {
+  --uno: top-0 z-1 bg-gray/2 backdrop-blur-md;
+}
+</style>
