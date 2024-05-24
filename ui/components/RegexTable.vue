@@ -4,6 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { Dropdown } from 'floating-vue'
 import Dialog from 'primevue/dialog'
+import type { ConditionGetter } from './FilterData.vue'
 
 const props = defineProps<{
   payload: RegexDoctorResult
@@ -13,16 +14,26 @@ const filters = reactive({
   package: '',
 })
 
+const filterConditions = shallowRef<ConditionGetter[]>([])
+
 const filtered = computed(() => {
   let list = props.payload.regexInfos
 
   if (filters.package)
     list = list.filter(item => item.packages?.includes(filters.package))
 
+  // apply all filters
+  list = list.filter(item => filterConditions.value.every(condition => condition(item)))
+
   return list
 })
 
 const currentRegex = shallowRef<RegexInfo | null>(null)
+
+function onFilterConfirm(conditions: ConditionGetter[]) {
+  filterConditions.value = conditions
+}
+
 const visible = ref(false)
 function showCurrentRegex(info: RegexInfo) {
   currentRegex.value = info
@@ -37,7 +48,11 @@ function showCurrentRegex(info: RegexInfo) {
         <PackageNameDisplay v-if="data.dynamic" name="new" />
       </template>
     </Column>
-    <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
+    <Column field="regex" class="text-left" header-class="pl4 [&>*]:justify-start">
+      <template #header>
+        <FilterData @filter="onFilterConfirm" />
+      </template>
+
       <template #body="{ data }">
         <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="showCurrentRegex(data)">
           <ShikiInline
@@ -127,7 +142,7 @@ function showCurrentRegex(info: RegexInfo) {
                 v-if="data.filesCreated?.length" i-ph-file-code-duotone text-purple
                 title="Regex creation source"
               />
-              <div op50 i-ph-files-duotone />
+              <div op50 i-ph-files-duotone flex-shrink-0 />
               {{ data.filesCalled?.length }}
             </button>
             <template #popper>
