@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RegexCall, RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import { h } from 'vue'
-import { decode, encode } from 'js-base64'
+import { encode } from 'js-base64'
 
 const props = defineProps<{
   info: RegexInfo
@@ -122,38 +122,37 @@ const RenderInput = defineComponent({
           <span>Top {{ info.callsInfos.length }} Costly Calls</span>
         </div>
         <div flex="~ col" of-auto>
-          <!-- eslint-disable-next-line vue/no-template-shadow -->
-          <div v-for="call, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
+          <div v-for="callInfo, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
             <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
               <div i-ph-timer-duotone op50 />
-              <DurationDisplay :ms="call.duration" />
+              <DurationDisplay :ms="callInfo.duration" />
 
               <div i-ph-text-align-left-duotone op50 />
               <div op50>
-                <NumberDisplay :number="call.inputLength" /> chars
+                <NumberDisplay :number="callInfo.inputLength" /> chars
               </div>
 
               <div i-ph-speedometer-duotone op50 flex-shrink-0 />
               <div>
-                <DurationDisplay :ms="call.dpk" /> <span op50 text-sm>/ 1K chars</span>
+                <DurationDisplay :ms="callInfo.dpk" /> <span op50 text-sm>/ 1K chars</span>
               </div>
 
-              <div :class="call.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
-              <div :class="call.matched ? 'text-green' : 'op50'">
-                {{ call.matched ? 'Matched' : 'Not matched' }}
+              <div :class="callInfo.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
+              <div :class="callInfo.matched ? 'text-green' : 'op50'">
+                {{ callInfo.matched ? 'Matched' : 'Not matched' }}
               </div>
 
-              <template v-if="call.groups">
+              <template v-if="callInfo.groups">
                 <div i-ph-brackets-round-duotone op50 />
                 <div op50>
-                  {{ call.groups }} groups
+                  {{ callInfo.groups }} groups
                 </div>
               </template>
 
               <div i-ph-list-magnifying-glass-duotone op50 />
               <div>
                 <a
-                  :href="getRegex101Link(call)"
+                  :href="getRegex101Link(callInfo)"
                   target="_blank" rel="noopener noreferrer"
                   op50 hover:underline hover:op100
                 >
@@ -162,11 +161,11 @@ const RenderInput = defineComponent({
               </div>
             </div>
             <a
-              :href="getRegex101Link(call)" target="_blank" rel="noopener noreferrer"
+              :href="getRegex101Link(callInfo)" target="_blank" rel="noopener noreferrer"
               w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
               text-zinc
             >
-              <RenderInput :call="call" />
+              <RenderInput :call="callInfo" />
             </a>
           </div>
         </div>

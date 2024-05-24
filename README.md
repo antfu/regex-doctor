@@ -11,6 +11,30 @@ Monitor your RegExp consumption and provide suggestions to improve performance.
 > [!IMPORTANT]
 > Work in progress, not yet useable.
 
+## Usage
+
+Install the package as a dependency:
+
+```bash
+pnpm i -D regex-doctor
+```
+
+Run the script with `--import regex-doctor/register`:
+
+```bash
+node --import regex-doctor/register path/to/your/script.js
+```
+
+Which will generate a report under `.regex-doctor/output.json`.
+
+Then run:
+
+```bash
+npx regex-doctor
+```
+
+To inspect the report in browser.
+
 ## Sponsors
 
 <p align="center">

@@ -3,7 +3,7 @@ import OverlayPanel from 'primevue/overlaypanel'
 import Dropdown from 'primevue/dropdown'
 import type { RegexInfo } from 'regex-doctor'
 
-interface Condition {
+export interface Condition {
   property: keyof RegexInfo
   condition: string
   value: string
@@ -121,7 +121,10 @@ function onRemoveCondition(conditionIndex: number) {
 </script>
 
 <template>
-  <button class="op-80" :class="[conditions.length ? 'i-ph-magnifying-glass-fill' : 'i-ph-magnifying-glass']" @click="onFilterClick" />
+  <button op80 flex="~ gap-2 items-center" @click="onFilterClick">
+    <div :class="[conditions.length ? 'i-ph-magnifying-glass-fill' : 'i-ph-magnifying-glass']" />
+    Regex
+  </button>
 
   <OverlayPanel
     ref="overlayRef"

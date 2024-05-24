@@ -3,6 +3,7 @@ import type { RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import { Dropdown } from 'floating-vue'
+import Dialog from 'primevue/dialog'
 import type { ConditionGetter } from './FilterData.vue'
 
 const props = defineProps<{
@@ -32,6 +33,12 @@ const currentRegex = shallowRef<RegexInfo | null>(null)
 function onFilterConfirm(conditions: ConditionGetter[]) {
   filterConditions.value = conditions
 }
+
+const visible = ref(false)
+function showCurrentRegex(info: RegexInfo) {
+  currentRegex.value = info
+  visible.value = true
+}
 </script>
 
 <template>
@@ -41,13 +48,13 @@ function onFilterConfirm(conditions: ConditionGetter[]) {
         <PackageNameDisplay v-if="data.dynamic" name="new" />
       </template>
     </Column>
-    <Column field="regex" header="Regex" class="text-left" header-class="pl4 [&>*]:justify-start">
+    <Column field="regex" class="text-left" header-class="pl4 [&>*]:justify-start">
       <template #header>
         <FilterData @filter="onFilterConfirm" />
       </template>
 
       <template #body="{ data }">
-        <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="currentRegex = data">
+        <button flex h-full px2 my1 border="~ base rounded" bg-gray:2 @click="showCurrentRegex(data)">
           <ShikiInline
             :code="`/${data.pattern}/${data.flags}`"
             lang="js" text-gray:50
@@ -98,7 +105,7 @@ function onFilterConfirm(conditions: ConditionGetter[]) {
     </Column>
     <Column field="max" header="Max" sortable>
       <template #body="{ data }">
-        <button @click="currentRegex = data">
+        <button @click="showCurrentRegex(data)">
           <DurationDisplay :ms="data.max" />
         </button>
       </template>
@@ -155,13 +162,17 @@ function onFilterConfirm(conditions: ConditionGetter[]) {
       </template>
     </Column>
   </DataTable>
-  <div
-    v-if="currentRegex"
-    fixed w-screen h-screen inset-0 flex backdrop-blur-5px z-100
+  <Dialog
+    v-model:visible="visible" :show-header="false"
+    maximizable modal dismissable-mask
+    :pt="{
+      mask: {
+        style: 'backdrop-filter: blur(5px)',
+      },
+    }"
   >
-    <div absolute inset-0 bg-black:10 z--1 @click="currentRegex = null" />
-    <div bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
+    <div v-if="currentRegex" bg-base shadow ma w-90vw h-90vh border="~ base rounded" of-hidden>
       <RegexDetail :info="currentRegex" :payload="payload" />
     </div>
-  </div>
+  </Dialog>
 </template>
