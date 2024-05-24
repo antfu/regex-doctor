@@ -44,7 +44,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "nr js:build && nr ui:build",
+    "build": "nr js:build && nr ui:build && nr -C test/fixtures/vite build",
     "start": "nr js:build && nr -C ui build:doctor && nr -C test/fixtures/vite build && nr dev",
     "dev": "nr -C ui dev",
     "js:build": "unbuild",
@@ -53,7 +53,7 @@
     "prepublishOnly": "nr build",
     "release": "bumpp && npm publish",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "pnpm -r typecheck",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
@@ -96,7 +96,8 @@
     }
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "pnpm lint-staged",
+    "pre-push": "pnpm run test"
   },
   "lint-staged": {
     "*": "eslint --fix"
