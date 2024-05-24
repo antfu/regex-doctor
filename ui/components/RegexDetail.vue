@@ -132,7 +132,7 @@ const RenderInput = defineComponent({
                 <NumberDisplay :number="callInfo.inputLength" /> chars
               </div>
 
-              <div i-ph-speedometer-duotone op50 />
+              <div i-ph-speedometer-duotone op50 flex-shrink-0 />
               <div>
                 <DurationDisplay :ms="callInfo.dpk" /> <span op50 text-sm>/ 1K chars</span>
               </div>
