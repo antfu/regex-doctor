@@ -2,6 +2,7 @@
 import type { RegexCall, RegexDoctorResult, RegexInfo } from 'regex-doctor'
 import { h } from 'vue'
 import { encode } from 'js-base64'
+import VirtualScroller from 'primevue/virtualscroller'
 
 const props = defineProps<{
   info: RegexInfo
@@ -68,7 +69,7 @@ const RenderInput = defineComponent({
   setup(props) {
     return () => h(
       'pre',
-      {},
+      { class: 'max-h-136px' },
       (props.call.input || []).map(i =>
         typeof i === 'number'
           ? h('div', { style: 'opacity: 0.2' }, `--- ${i} chars truncated ---`)
@@ -117,57 +118,61 @@ const RenderInput = defineComponent({
       </DataField>
     </div>
     <div grid="~ cols-[2fr_1fr]" min-h-0>
-      <div v-if="info.callsInfos.length" of-auto>
+      <div v-if="info.callsInfos.length" of-auto flex="~ col">
         <div px4 py2 border="b base">
           <span>Top {{ info.callsInfos.length }} Costly Calls</span>
         </div>
-        <div flex="~ col" of-auto>
-          <div v-for="callInfo, idx of info.callsInfos" :key="idx" border="b base" p4 flex="~ gap-2">
-            <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
-              <div i-ph-timer-duotone op50 />
-              <DurationDisplay :ms="callInfo.duration" />
+        <div flex="~ col 1">
+          <VirtualScroller :items="info.callsInfos" :item-size="179" style="height: 100%">
+            <template #item="{ item: callInfo }">
+              <div flex="~ gap-2" border="b base" p4>
+                <div w-45 grid="~ cols-[max-content_1fr] gap-1 items-center" flex-none h-max>
+                  <div i-ph-timer-duotone op50 />
+                  <DurationDisplay :ms="callInfo.duration" />
 
-              <div i-ph-text-align-left-duotone op50 />
-              <div op50>
-                <NumberDisplay :number="callInfo.inputLength" /> chars
-              </div>
+                  <div i-ph-text-align-left-duotone op50 />
+                  <div op50>
+                    <NumberDisplay :number="callInfo.inputLength" /> chars
+                  </div>
 
-              <div i-ph-speedometer-duotone op50 flex-shrink-0 />
-              <div>
-                <DurationDisplay :ms="callInfo.dpk" /> <span op50 text-sm>/ 1K chars</span>
-              </div>
+                  <div i-ph-speedometer-duotone op50 flex-shrink-0 />
+                  <div>
+                    <DurationDisplay :ms="callInfo.dpk" /> <span op50 text-sm>/ 1K chars</span>
+                  </div>
 
-              <div :class="callInfo.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
-              <div :class="callInfo.matched ? 'text-green' : 'op50'">
-                {{ callInfo.matched ? 'Matched' : 'Not matched' }}
-              </div>
+                  <div :class="callInfo.matched ? 'text-green i-ph-check-circle-duotone' : 'text-orange i-ph-x-circle-duotone'" />
+                  <div :class="callInfo.matched ? 'text-green' : 'op50'">
+                    {{ callInfo.matched ? 'Matched' : 'Not matched' }}
+                  </div>
 
-              <template v-if="callInfo.groups">
-                <div i-ph-brackets-round-duotone op50 />
-                <div op50>
-                  {{ callInfo.groups }} groups
+                  <template v-if="callInfo.groups">
+                    <div i-ph-brackets-round-duotone op50 />
+                    <div op50>
+                      {{ callInfo.groups }} groups
+                    </div>
+                  </template>
+
+                  <div i-ph-list-magnifying-glass-duotone op50 />
+                  <div>
+                    <a
+                      :href="getRegex101Link(callInfo)"
+                      target="_blank" rel="noopener noreferrer"
+                      op50 hover:underline hover:op100
+                    >
+                      Test on Regex101
+                    </a>
+                  </div>
                 </div>
-              </template>
-
-              <div i-ph-list-magnifying-glass-duotone op50 />
-              <div>
                 <a
-                  :href="getRegex101Link(callInfo)"
-                  target="_blank" rel="noopener noreferrer"
-                  op50 hover:underline hover:op100
+                  :href="getRegex101Link(callInfo)" target="_blank" rel="noopener noreferrer"
+                  w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
+                  text-zinc
                 >
-                  Test on Regex101
+                  <RenderInput :call="callInfo" />
                 </a>
               </div>
-            </div>
-            <a
-              :href="getRegex101Link(callInfo)" target="_blank" rel="noopener noreferrer"
-              w-full block bg-gray:5 px2 py1 border="~ base rounded" of-auto font-mono h-max
-              text-zinc
-            >
-              <RenderInput :call="callInfo" />
-            </a>
-          </div>
+            </template>
+          </VirtualScroller>
         </div>
       </div>
       <div border="l base" of-auto>

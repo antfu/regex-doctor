@@ -35,7 +35,7 @@ html:not(.dark) .shiki span {
 }
 
 .data-table th {
-  --uno: p2 text-sm op50 font-normal;
+  --uno: p2 text-sm op50 font-normal hover-cursor-pointer hover-bg-hover;
 }
 
 .data-table tbody tr {
