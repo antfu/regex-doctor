@@ -8,6 +8,17 @@ export interface RegexDoctorDumpOptions {
   cwd?: string
 
   /**
+   * Output folder name
+   */
+  folder?: string
+
+  /**
+   * Output file name
+   * @default output.json
+   */
+  file?: string
+
+  /**
    * Limit of the numbers of calls to dump. Sorted by duration cost.
    * @default 10
    */

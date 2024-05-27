@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type { RegexDoctorResult } from 'regex-doctor'
 import { version } from '../../package.json'
 
-const payload = Object.freeze(await $fetch('/api/payload.json') as RegexDoctorResult)
+const payload = Object.freeze(await $fetch('/api/payload.json'))
 </script>
 
 <template>

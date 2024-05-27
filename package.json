@@ -64,6 +64,7 @@
     "h3": "^1.11.1",
     "launch-editor": "^2.6.1",
     "mrmime": "^2.0.0",
+    "msgpackr": "^1.10.2",
     "open": "^10.1.0",
     "picocolors": "^1.0.1",
     "trace-record": "^0.2.0"
