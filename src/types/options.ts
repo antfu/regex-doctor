@@ -2,21 +2,6 @@ export interface RegexDoctorOptions {
 }
 
 export interface RegexDoctorDumpOptions {
-  /**
-   * Provide current working directory for relative paths
-   */
-  cwd?: string
-
-  /**
-   * Output folder name
-   */
-  folder?: string
-
-  /**
-   * Output file name
-   * @default output.json
-   */
-  file?: string
 
   /**
    * Limit of the numbers of calls to dump. Sorted by duration cost.

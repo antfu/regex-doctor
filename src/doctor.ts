@@ -6,13 +6,7 @@ import type { RecordRegexInfo } from './types/record'
 import type { RegexDoctorDumpOptions, RegexDoctorOptions } from './types/options'
 import { hijack, listeners, restore } from './hijack'
 import { dump } from './dump'
-
-// TODO: read file path from regex-doctor config file
-const defaultFileData = {
-  cwd: '.',
-  folder: '.regex-doctor',
-  file: 'output.bin',
-}
+import { loadRegexDoctorConfig } from './config'
 
 export class RegexDoctor {
   map = new Map<RegExp, RecordRegexInfo>()
@@ -90,20 +84,19 @@ export class RegexDoctor {
     this.map.clear()
   }
 
-  static get filePath() {
-    return path.join(defaultFileData.cwd, defaultFileData.folder, defaultFileData.file)
+  static async getFilePath() {
+    const config = await loadRegexDoctorConfig()
+    return path.join(config.rootDir, config.outputDir, config.outputFileName)
   }
 
-  dump(options: RegexDoctorDumpOptions = {}) {
+  async dump(options: RegexDoctorDumpOptions = {}) {
     this.saveDuration()
-    mkdirSync(path.join(defaultFileData.cwd, defaultFileData.folder), { recursive: true })
-    defaultFileData.cwd = options.cwd || defaultFileData.cwd
-    defaultFileData.folder = options.folder || defaultFileData.folder
-    defaultFileData.file = options.file || defaultFileData.file
-    writeFileSync(RegexDoctor.filePath, pack(dump(this, options)))
+    const config = await loadRegexDoctorConfig()
+    mkdirSync(path.join(config.rootDir, config.outputDir), { recursive: true })
+    writeFileSync(await RegexDoctor.getFilePath(), pack(dump(this, options)))
   }
 
-  static pickup(filePath?: string): RegexDoctorResult {
-    return unpack(readFileSync(filePath || RegexDoctor.filePath))
+  static async pickup(filePath?: string): Promise<RegexDoctorResult> {
+    return unpack(readFileSync(filePath || (await RegexDoctor.getFilePath())))
   }
 }

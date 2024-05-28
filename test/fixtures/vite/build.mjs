@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { build } from 'vite'
 import { startRegexDoctor } from 'regex-doctor'
 
@@ -7,8 +6,7 @@ import { startRegexDoctor } from 'regex-doctor'
 
   await build()
 
-  doctor.dump({
+  await doctor.dump({
     stacktrace: true,
-    cwd: process.cwd(),
   })
 }

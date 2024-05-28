@@ -8,3 +8,5 @@ export function startRegexDoctor() {
   doctor.start()
   return doctor
 }
+
+export { defineRegexDoctorConfig } from './config'
