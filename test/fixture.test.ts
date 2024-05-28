@@ -8,7 +8,7 @@ it('vite', async () => {
   const dir = fileURLToPath(new URL('./fixtures/vite', import.meta.url))
   await execa('pnpm', ['run', 'build'], { cwd: dir, stdio: 'inherit' })
   // TODO: read file path from regex-doctor config file
-  const data = RegexDoctor.pickup(path.join(dir, './.regex-doctor/output.bin'))
+  const data = await RegexDoctor.pickup(path.join(dir, './.regex-doctor/output.bin'))
   expect(data).toBeDefined()
   expect(data.count).toBeGreaterThan(0)
 }, { timeout: 60_000 })
