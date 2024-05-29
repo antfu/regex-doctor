@@ -95,7 +95,6 @@ export class RegexDoctor {
     const config = await loadRegexDoctorConfig()
     mkdirSync(path.join(config.rootDir, config.outputDir), { recursive: true })
     const filePath = path.join(config.rootDir, config.outputDir, config.outputFileName)
-    // rmSync(filePath, { force: true })
     const writableStream = createWriteStream(filePath, { encoding: 'utf8' })
 
     const data = dump(this, options)
