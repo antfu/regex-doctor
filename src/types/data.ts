@@ -23,10 +23,6 @@ export interface RegexDoctorResult {
    */
   regexInfos: RegexInfo[]
   /**
-   * Working directory
-   */
-  cwd?: string
-  /**
    * CLI arguments
    */
   argv?: string[]

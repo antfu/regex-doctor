@@ -9,7 +9,7 @@ export function defineRegexDoctorConfig(config: RegexDoctorConfig) {
 const defaultFileData: Required<RegexDoctorConfig> = {
   rootDir: '.',
   outputDir: '.regex-doctor',
-  outputFileName: 'output.bin',
+  outputFileName: 'output.json',
 }
 
 export async function loadRegexDoctorConfig() {

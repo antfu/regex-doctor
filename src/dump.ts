@@ -228,7 +228,6 @@ export function dump(
     totalDuration: doctor.duration,
     totalExecution,
     regexInfos: infos,
-    cwd: options.cwd,
   }
 }
 
