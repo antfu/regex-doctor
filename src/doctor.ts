@@ -99,6 +99,7 @@ export class RegexDoctor {
     const writableStream = createWriteStream(filePath, { encoding: 'utf8' })
 
     const data = dump(this, options)
+    data.cwd = config.rootDir
     const getSpace = (n: number, space = '  ') => space.repeat(n)
     const writeObj = (obj: Record<string, any>, writableStream: WriteStream, indent: number = 0) => {
       writableStream.write(`{`)
