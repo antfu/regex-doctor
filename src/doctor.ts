@@ -1,8 +1,15 @@
+/* eslint-disable no-console */
+import type { WriteStream } from 'node:fs'
+import { createWriteStream, mkdirSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import c from 'picocolors'
 import type { RegexDoctorResult } from './types/data'
 import type { RecordRegexInfo } from './types/record'
 import type { RegexDoctorDumpOptions, RegexDoctorOptions } from './types/options'
 import { hijack, listeners, restore } from './hijack'
 import { dump } from './dump'
+import { loadRegexDoctorConfig } from './config'
 
 export class RegexDoctor {
   map = new Map<RegExp, RecordRegexInfo>()
@@ -80,8 +87,79 @@ export class RegexDoctor {
     this.map.clear()
   }
 
-  dump(options: RegexDoctorDumpOptions = {}): RegexDoctorResult {
-    this.saveDuration()
-    return dump(this, options)
+  static async getFilePath() {
+    const config = await loadRegexDoctorConfig()
+    return path.join(config.rootDir, config.outputDir, config.outputFileName)
   }
+
+  async dump(options: RegexDoctorDumpOptions = {}) {
+    this.saveDuration()
+    const config = await loadRegexDoctorConfig()
+    mkdirSync(path.join(config.rootDir, config.outputDir), { recursive: true })
+    const filePath = path.join(config.rootDir, config.outputDir, config.outputFileName)
+
+    await new Promise((resolve, reject) => {
+      const writeStream = createWriteStream(filePath)
+
+      console.log('[regex-doctor] start dumping...')
+      console.time(c.cyan('[regex-doctor] dump cost'))
+      const data = dump(this, options)
+      data.cwd = config.rootDir
+      console.timeEnd(c.cyan('[regex-doctor] dump cost'))
+
+      console.log('[regex-doctor] start writing...')
+      console.time(c.cyan('[regex-doctor] write json cost'))
+      writeObj(data, writeStream, 0)
+      console.timeEnd(c.cyan('[regex-doctor] write json cost'))
+
+      writeStream.end()
+
+      writeStream.on('finish', () => {
+        console.log('[regex-doctor] start writing finished!')
+        resolve(true)
+      })
+
+      writeStream.on('error', (err) => {
+        console.error(c.red('Error during writing:'), err)
+        reject(err)
+      })
+    })
+
+    return filePath
+  }
+
+  static async pickup(filePath?: string): Promise<RegexDoctorResult> {
+    return JSON.parse(await readFile(filePath || (await RegexDoctor.getFilePath()), { encoding: 'utf8' }))
+  }
+}
+
+const getSpace = (n: number, space = '  ') => space.repeat(n)
+
+function writeObj(obj: Record<string, any>, writableStream: WriteStream, indent: number = 0) {
+  writableStream.write(`{`)
+  Object.keys(obj)
+    .filter(key => obj[key] !== undefined)
+    .forEach((k, i, arr) => {
+      if (Array.isArray(obj[k])) {
+        writableStream.write(`\n${getSpace(indent + 1)}"${k}": [`)
+        if (obj[k].length === 0) {
+          writableStream.write('],')
+          return
+        }
+        for (let j = 0; j < obj[k].length; j++) {
+          const item = obj[k][j]
+          // TODO: maybe is Map, Set
+          if (typeof item === 'object')
+            writeObj(item, writableStream, indent + 1)
+          else
+            writableStream.write(`\n${getSpace(indent + 2)}${JSON.stringify(item)}`)
+          writableStream.write(j < obj[k].length - 1 ? ',' : '')
+        }
+        writableStream.write(`\n${getSpace(indent + 1)}]${i < arr.length - 1 ? ',' : ''}`)
+      }
+      else {
+        writableStream.write(`\n${getSpace(indent + 1)}"${k}": ${JSON.stringify(obj[k])}${i < arr.length - 1 ? ',' : ''}`)
+      }
+    })
+  writableStream.write(`\n${getSpace(indent)}}`)
 }

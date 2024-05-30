@@ -183,3 +183,9 @@ const RenderInput = defineComponent({
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.p-virtualscroller-content) {
+  width: 100%;
+}
+</style>

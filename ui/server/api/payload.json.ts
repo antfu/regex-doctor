@@ -1,10 +1,5 @@
-import fs from 'node:fs/promises'
-import type { RegexDoctorResult } from '../../../src/types/data'
+import { RegexDoctor } from 'regex-doctor'
 
 export default defineEventHandler(async () => {
-  return JSON.parse(await fs.readFile(
-    // TODO: read the path from CLI
-    new URL('../../.regex-doctor/output.json', import.meta.url),
-    'utf-8',
-  )) as RegexDoctorResult
+  return await RegexDoctor.pickup()
 })

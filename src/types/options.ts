@@ -2,10 +2,6 @@ export interface RegexDoctorOptions {
 }
 
 export interface RegexDoctorDumpOptions {
-  /**
-   * Provide current working directory for relative paths
-   */
-  cwd?: string
 
   /**
    * Limit of the numbers of calls to dump. Sorted by duration cost.
