@@ -2,7 +2,7 @@
 import fs from 'node:fs'
 import process from 'node:process'
 import exitHook from 'exit-hook'
-import c from 'picocolors'
+import { blue, green } from 'ansis'
 import { RegexDoctor } from './doctor'
 
 console.log(`[regex-doctor] start tracking`)
@@ -17,5 +17,5 @@ exitHook(() => {
   fs.writeFileSync('./.regex-doctor/output.json', JSON.stringify(doctor.dump({
     cwd,
   }), null, 2))
-  console.log(`[regex-doctor] output saved to ${c.blue('./.regex-doctor/output.json')}, run ${c.green(c.bold('npx regex-doctor view'))} to view it in an interactive UI.`)
+  console.log(`[regex-doctor] output saved to ${blue`./.regex-doctor/output.json`}, run ${green.bold`npx regex-doctor view`} to view it in an interactive UI.`)
 })
