@@ -4,11 +4,11 @@ import { resolve } from 'node:path'
 import open from 'open'
 import { getPort } from 'get-port-please'
 import cac from 'cac'
-import c from 'picocolors'
+import { blue, green } from 'ansis'
 import { createHostServer } from './server'
 
-// const MARK_CHECK = c.green('✔')
-const MARK_INFO = c.blue('ℹ')
+// const MARK_CHECK = green('✔')
+const MARK_INFO = blue('ℹ')
 
 const cli = cac('regex-doctor')
 
@@ -26,7 +26,7 @@ cli
     if (process.env.ESLINT_CONFIG)
       options.config ||= process.env.ESLINT_CONFIG
 
-    console.log(MARK_INFO, `Starting RegexDoctor viewer at`, c.green(`http://${host}:${port}`), '\n')
+    console.log(MARK_INFO, `Starting RegexDoctor viewer at`, green`http://${host}:${port}`, '\n')
 
     const cwd = process.cwd()
     const server = await createHostServer({
